@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Improv</title>
+    <link rel="import" href="./node_modules/ccwc-threejs-vrscene/ccwc-threejs-vrscene.html">
+    <script src="./improv.js"></script>
+    <script src="node_modules/tone/build/Tone.min.js"></script>
+    <style>
+        body {
+            width: 100vw;
+            height: 100vh;
+            padding: 0;
+            margin: 0;
+            overflow: hidden;
+        }
+        ccwc-threejs-vrscene {
+            display: inline-block;
+            width: 100%;
+            height: 100%
+        }
+    </style>
+</head>
+<body>
+    <ccwc-threejs-vrscene inspectable></ccwc-threejs-vrscene>
+    <script>
+        var improv = new Improv.default(document.querySelector('ccwc-threejs-vrscene'));
+    </script>
+</body>
+</html>
