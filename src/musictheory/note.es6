@@ -4,7 +4,7 @@
  */
 export default {
     /** cached keysignature lookup table */
-    keys: { major: {}, minor: {} },
+    keys: {},
 
     /**
      * incremental tones as sharp notation
@@ -148,8 +148,8 @@ export default {
     generateKeySignatureLookup() {
         var kys = this.sharpNotations;
         for (var c = 0; c < kys.length; c++) {
-            this.keys.major[kys[c]] = this.notesInKeySignature(kys[c], true);
-            this.keys.minor[kys[c]] = this.notesInKeySignature(kys[c], false);
+            this.keys[kys[c]] = this.notesInKeySignature(kys[c], true);
+            this.keys[kys[c] + 'm'] = this.notesInKeySignature(kys[c], false);
         }
     }
 

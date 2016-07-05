@@ -34,7 +34,9 @@ export default class {
         var down = [];
         for (var c = 0; c < this._keys.length; c++) {
             if (this._keys[c] > 0) {
-                down.push(mapping[c]);
+                var octave = 0;
+                if (c >= this._keys.length/2) { octave = 1; }
+                down.push( { notation: mapping[c], octave: octave, index: c, velocity: this._keys[c]} );
             }
         }
         return down;

@@ -10,9 +10,6 @@ export default class Improv {
         scene.addObjects([ new Metronome(), new Dome(), new Keyboard(), new Lighting() ]);
     }
 
-    create(scene, custom) {
-        var input = new Input(scene, custom);
-    }
-
+    create(scene, custom) {}
     render(scene, custom) {}
 }

@@ -1,19 +1,8 @@
 import QWERTYKeyManager from './qwertykeymanager.es6';
 import KeySignaturePrediction from './musictheory/keysignatureprediction.es6';
-import Note from './musictheory/note.es6';
 
 export default class {
-    constructor(scenecollection, mycollection) {
-        /**
-         * scene collection of 3D objects
-         */
-        this._scenecollection = scenecollection;
-
-        /**
-         * my collection of 3D scene objects
-         */
-        this._mycollection = mycollection;
-
+    constructor(mapping, cb) {
         /**
          * key manager
          * @type {$ES6_ANONYMOUS_CLASS$}
@@ -26,7 +15,7 @@ export default class {
          * @type {Array.<string>}
          * @private
          */
-        this._keyMapping = Note.sharpNotations.concat(Note.sharpNotations);
+        this._keyMapping = mapping;
 
         /**
          * key signature prediction
@@ -34,6 +23,11 @@ export default class {
          * @private
          */
         this._keySigPrediction = new KeySignaturePrediction();
+
+        /**
+         * key change callback
+         */
+        this._callback = cb;
     }
 
     /**
@@ -44,18 +38,7 @@ export default class {
      */
     onKeyChange(index, value, keys) {
         var kd = this._keymanager.getKeysDown(this._keyMapping);
-        this._mycollection.keys[index].object.scale.y = 1 + (value/5);
-        this._keySigPrediction.update(kd);
-        //this._mycollection.keys[index].object.rotation.x = -value * Math.PI/64;
-
-        if (value === 0) {
-            this._mycollection.keys[index].object.material.color = new THREE.Color("rgb(20, 20, 20)");
-        } else {
-            this._mycollection.keys[index].object.material.color = new THREE.Color("rgb(80, 20, 20)");
-        }
+        var predicted = this._keySigPrediction.update(kd);
+        this._callback.apply(this, [ { current: kd, predictedKey: predicted, keyIndicesChanged: keys }]);
     }
-
-
-
-
 }

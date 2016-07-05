@@ -37,24 +37,13 @@ export default class {
      * @param {Array} keys
      */
     update(keys) {
-        if (keys.length === 0) { return; }
+        if (keys.length === 0) { return this._keySignatureScoreHistory; }
         var keysigScores = {};
-        for (var sig in Note.keys.major) {
-            var c, d;
-            for (c = 0; c < Note.keys.major[sig].length; c++) {
-                for (d = 0; d < keys.length; d++) {
-                    if (Note.keys.major[sig].indexOf(keys[d]) !== -1) {
-                        if (!keysigScores[sig]) { keysigScores[sig] = 0; }
-                        keysigScores[sig] ++;
-                    }
-                }
-            }
-            for (c = 0; c < Note.keys.minor[sig].length; c++) {
-                for (d = 0; d < keys.length; d++) {
-                    if (Note.keys.minor[sig].indexOf(keys[d]) !== -1) {
-                        if (!keysigScores[sig + 'm']) { keysigScores[sig + 'm'] = 0; }
-                        keysigScores[sig + 'm'] ++;
-                    }
+        for (var sig in Note.keys) {
+            for (var d = 0; d < keys.length; d++) {
+                if (Note.keys[sig].indexOf(keys[d].notation) !== -1) {
+                    if (!keysigScores[sig]) { keysigScores[sig] = 0; }
+                    keysigScores[sig] ++;
                 }
             }
         }
@@ -63,9 +52,9 @@ export default class {
         for (var score in keysigScores) {
             scores.push( { score: keysigScores[score], key: score, timestamp: Date.now() });
         }
+
         this.decayHistoricalScores();
-        this.applyCurrentScoreToHistory(scores);
-        //console.log(this._keySignatureScoreHistory[0], this._keySignatureScoreHistory[1], this._keySignatureScoreHistory[2]);
+        return this.applyCurrentScoreToHistory(scores);
     }
 
     /**
@@ -94,6 +83,6 @@ export default class {
                 this._keySignatureScoreHistory.push(scores[c]);
             }
         }
-        this._keySignatureScoreHistory.sort(function(a, b) { return (a.score < b.score ) ? 1 : ((b.score < a.score) ? -1 : 0); });
+        return this._keySignatureScoreHistory.sort(function(a, b) { return (a.score < b.score ) ? 1 : ((b.score < a.score) ? -1 : 0); });
     }
 }

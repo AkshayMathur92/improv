@@ -1,31 +1,48 @@
 import BaseGroup from '../../node_modules/ccwc-threejs-vrscene/src/basegroup.es6';
+import Input from '../input.es6';
+import Note from '../musictheory/note.es6';
 
 export default class Keyboard extends BaseGroup {
    onInitialize() {
-        /**
-         * key visuals
-         * @type {Array}
-         * @private
-         */
-        this._keys = [];
+       /**
+        * key visuals
+        * @type {Array}
+        * @private
+        */
+       this._keys = [];
 
-        /**
-         * key material
-         * @type {THREE.MeshLambertMaterial}
-         */
-        var keyMaterial = this.createMaterial();
+       /**
+        * key material
+        * @type {THREE.MeshLambertMaterial}
+        */
+       this._keyMaterial = this.createMaterial();
 
-        /**
-         * white key mesh
-         */
-        this._whiteKeyMesh = this.createWhiteKey(keyMaterial.clone());
+       /**
+        * key mapping
+        * @type {Array.<string>}
+        * @private
+        */
+       this._keyMapping = Note.sharpNotations.concat(Note.sharpNotations);
 
-        /**
-         * black key mesh
-         */
-        this._blackKeyMesh = this.createBlackKey(keyMaterial.clone());
-    }
+       /**
+        * keyboard/key input
+        * @type {$ES6_ANONYMOUS_CLASS$}
+        * @private
+        */
+       this._input = new Input( Note.sharpNotations.concat(Note.sharpNotations), (keys) => this.onKeyInputChange(keys) );
 
+       /**
+        * suggested keys from key signature prediction
+        * @type {Array}
+        */
+       this.suggestedKeys = [];
+
+       /**
+        * current key signature
+        * @type {String}
+        */
+       this.currentKeySignature = null;
+   }
     /**
      * on create scene (or earliest possible opportunity)
      * @param scene
@@ -48,12 +65,70 @@ export default class Keyboard extends BaseGroup {
     }
 
     /**
+     * on key change
+     * @param keys
+     */
+    onKeyInputChange(keys) {
+        for (var index in keys.keyIndicesChanged) {
+            this.toggleKeyPressed(this._keys[index], keys.keyIndicesChanged[index]);
+        }
+
+        if (keys.predictedKey.length > 0 && keys.predictedKey[0] !== this.currentKeySignature) {
+            this.onKeySignatureChange(keys.predictedKey[0].key);
+        }
+    }
+
+    /**
+     * handler when key signature changes
+     * @param keysig
+     */
+    onKeySignatureChange(keysig) {
+        var c;
+        for (c = 0; c < this.suggestedKeys.length; c++) {
+            this.toggleKeySuggestion(this.suggestedKeys[c], false);
+        }
+        this.currentKeySignature = keysig;
+        this.suggestedKeys = Note.keys[keysig];
+
+        for (c = 0; c < this.suggestedKeys.length; c++) {
+            this.toggleKeySuggestion(this.suggestedKeys[c], true);
+        }
+    }
+
+    /**
+     * toggle key pressed
+     * @param key
+     * @param velocity
+     */
+    toggleKeyPressed(key, velocity) {
+        key.object.scale.y = 1 + (velocity/5);
+        //this._keys[index].object.rotation.x = -value * Math.PI/64;
+    }
+
+    /**
+     * toggle key suggestion
+     * @param notation
+     * @param toggle
+     */
+    toggleKeySuggestion(notation, toggle) {
+        var keys = this.findKeyObjectsForNotation(notation);
+
+        for (var c = 0; c < keys.length; c++) {
+            if (toggle) {
+                keys[c].object.material.color = new THREE.Color('rgb(40, 20, 20)');
+            } else {
+                keys[c].object.material.color = new THREE.Color(0xffee00);
+            }
+        }
+    }
+
+    /**
      * create white key geometry
      * @returns {THREE.Mesh}
      */
-    createWhiteKey(material) {
+    createWhiteKey() {
         var keygeom = new THREE.CubeGeometry( 26, 70, 5 );
-        var key = new THREE.Mesh( keygeom, material);
+        var key = new THREE.Mesh( keygeom, this._keyMaterial.clone());
         key.geometry.translate( 0, 100, -400 );
         return key;
     }
@@ -62,9 +137,9 @@ export default class Keyboard extends BaseGroup {
      * create black key geometry
      * @returns {THREE.Mesh}
      */
-    createBlackKey(material) {
+    createBlackKey() {
         var keygeom =  new THREE.CubeGeometry( 13, 35, 5 );
-        var key = new THREE.Mesh( keygeom, material);
+        var key = new THREE.Mesh( keygeom, this._keyMaterial.clone());
         key.geometry.translate( 0, 130, -400 );
         return key;
     }
@@ -78,10 +153,10 @@ export default class Keyboard extends BaseGroup {
         var key, color;
         if (white) {
             color = 'white';
-            key = this._whiteKeyMesh.clone();
+            key = this.createWhiteKey()
         } else {
             color = 'black';
-            key = this._blackKeyMesh.clone();
+            key = this.createBlackKey()
         }
         key.rotation.z = rotation;
         this._keys.push({ type: color, object: key, notation: notation });
@@ -102,5 +177,22 @@ export default class Keyboard extends BaseGroup {
                 refractionRatio: 0.95,
                 combine: THREE.MixOperation,
                 reflectivity: 0.3 });
+    }
+
+
+    /**
+     * find the key for a specific notation
+     * todo: choose most appropritae octave
+     * @param notation
+     * @returns {Array}
+     */
+    findKeyObjectsForNotation(notation) {
+        var keys = []; // multiple keys for multiple octaves (just 2 right now)
+        for (var c = 0; c < this._keys.length; c++) {
+            if (this._keys[c].notation === notation) {
+                keys.push(this._keys[c]);
+            }
+        }
+        return keys;
     }
 }
