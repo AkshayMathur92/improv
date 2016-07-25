@@ -12,30 +12,38 @@ export default class Keyboard extends BaseGroup {
        this._keys = [];
 
        /**
-        * key material
-        * @type {THREE.MeshLambertMaterial}
-        */
-       this._keyMaterial = this.createMaterial();
-
-       /**
-        * key mapping
-        * @type {Array.<string>}
+        * colors
+        * @type {{whitekey: number, blackkey: number}}
         * @private
         */
-       this._keyMapping = Note.sharpNotations.concat(Note.sharpNotations);
+       this._colors = {
+           white: 0x67B9BF,
+           black: 0x457B7F,
+           suggested: {
+               white: 0x8AF7FF,
+               black: 0x223E40
+           }
+       };
 
        /**
         * keyboard/key input
         * @type {$ES6_ANONYMOUS_CLASS$}
         * @private
         */
-       this._input = new Input( Note.sharpNotations.concat(Note.sharpNotations), (keys) => this.onKeyInputChange(keys) );
+       this._input = new Input('MIDI', (keys) => this.onKeyInputChange(keys) );
 
        /**
         * suggested keys from key signature prediction
         * @type {Array}
         */
        this.suggestedKeys = [];
+
+       /**
+        * scene
+        * @type {null}
+        * @private
+        */
+       this._scene = null;
 
        /**
         * current key signature
@@ -49,12 +57,35 @@ export default class Keyboard extends BaseGroup {
      * @param custom
      */
     onCreate(scene, custom) {
+        this._scene = scene;
+    }
+
+    /**
+     * on assets loaded
+     * @param geometry
+     */
+    onAssetsLoaded(geometry) {
+        var mat = new THREE.MeshStandardMaterial( {
+            metalness: 0.5,
+            roughness: 1,
+            side: THREE.FrontSide,
+            shading: THREE.FlatShading
+        });
+        this.setupScene(geometry, mat);
+    };
+
+    /**
+     * dynamically generate circle of keys
+     * @param geometry
+     * @param material
+     */
+    setupScene(geometry, material) {
         var counter = 0;
         for (var c = 0; c < 14; c++) {
-            this.addKey(-c * Math.PI * 2 / 14, true, String.fromCharCode('A'.charCodeAt(0) + counter));
+            this.addKey(- c * Math.PI * 2 / 14, true, String.fromCharCode('A'.charCodeAt(0) + counter), geometry, material);
 
             if (counter !== 1 && counter !== 4) {
-                this.addKey(-(c * Math.PI * 2 / 14 + Math.PI/14), false, String.fromCharCode('A'.charCodeAt(0) + counter) + '#');
+                this.addKey(-(c * Math.PI * 2 / 14 + Math.PI/14), false, String.fromCharCode('A'.charCodeAt(0) + counter) + '#', geometry, material);
             }
 
             counter ++;
@@ -62,19 +93,27 @@ export default class Keyboard extends BaseGroup {
                 counter = 0;
             }
         }
+        this.group.rotation.z = Math.PI;
+        this.group.position.z = -30;
     }
 
     /**
      * on key change
      * @param keys
      */
-    onKeyInputChange(keys) {
-        for (var index in keys.keyIndicesChanged) {
-            this.toggleKeyPressed(this._keys[index], keys.keyIndicesChanged[index]);
+    onKeyInputChange(event) {
+        var key = this.findKeyObjectsForNotation(event.changed.notation);
+        var octave;
+        if (event.changed.octave / 2 === Math.floor(event.changed.octave / 2)) {
+            octave = 1;
+        } else {
+            octave = 0;
         }
 
-        if (keys.predictedKey.length > 0 && keys.predictedKey[0] !== this.currentKeySignature) {
-            this.onKeySignatureChange(keys.predictedKey[0].key);
+        this.toggleKeyPressed(key[octave], event.changed.velocity);
+
+        if (event.predictedKey.length > 0 && event.predictedKey[0] !== this.currentKeySignature) {
+            this.onKeySignatureChange(event.predictedKey[0].key);
         }
     }
 
@@ -101,8 +140,13 @@ export default class Keyboard extends BaseGroup {
      * @param velocity
      */
     toggleKeyPressed(key, velocity) {
-        key.object.scale.y = 1 + (velocity/5);
-        //this._keys[index].object.rotation.x = -value * Math.PI/64;
+        if (velocity === 0) {
+            key.object.rotation.set(key.originalRotation.x, key.originalRotation.y, key.originalRotation.z);
+            key.currentRotation = 0;
+        } else {
+            key.currentRotation = velocity * Math.PI/16;
+            key.object.rotateX(key.currentRotation);
+        }
     }
 
     /**
@@ -112,12 +156,11 @@ export default class Keyboard extends BaseGroup {
      */
     toggleKeySuggestion(notation, toggle) {
         var keys = this.findKeyObjectsForNotation(notation);
-
         for (var c = 0; c < keys.length; c++) {
             if (toggle) {
-                keys[c].object.material.color = new THREE.Color('rgb(40, 20, 20)');
+                keys[c].object.material.color.setHex(this._colors.suggested[keys[0].type]);
             } else {
-                keys[c].object.material.color = new THREE.Color(0xffee00);
+                keys[c].object.material.color.setHex(this._colors[keys[0].type]);
             }
         }
     }
@@ -126,10 +169,12 @@ export default class Keyboard extends BaseGroup {
      * create white key geometry
      * @returns {THREE.Mesh}
      */
-    createWhiteKey() {
-        var keygeom = new THREE.CubeGeometry( 26, 70, 5 );
-        var key = new THREE.Mesh( keygeom, this._keyMaterial.clone());
-        key.geometry.translate( 0, 100, -400 );
+    createWhiteKey(geometry, material) {
+        var keygeom = geometry.clone();
+        var mat = material.clone();
+        mat.color.setHex(this._colors.white);
+        keygeom.translate( 0, -10, 0 );
+        var key = new THREE.Mesh( keygeom, mat);
         return key;
     }
 
@@ -137,10 +182,13 @@ export default class Keyboard extends BaseGroup {
      * create black key geometry
      * @returns {THREE.Mesh}
      */
-    createBlackKey() {
-        var keygeom =  new THREE.CubeGeometry( 13, 35, 5 );
-        var key = new THREE.Mesh( keygeom, this._keyMaterial.clone());
-        key.geometry.translate( 0, 130, -400 );
+    createBlackKey(geometry, material) {
+        var keygeom = geometry.clone();
+        var mat = material.clone();
+        mat.color.setHex(this._colors.black);
+        keygeom.translate( 0, -25, 0 );
+        keygeom.scale(1, .5, 1);
+        var key = new THREE.Mesh( keygeom, mat);
         return key;
     }
 
@@ -149,34 +197,68 @@ export default class Keyboard extends BaseGroup {
      * @param {Number} rotation
      * @param {Boolean} white
      */
-    addKey(rotation, white, notation) {
+    addKey(rotation, white, notation, geometry, material) {
         var key, color;
         if (white) {
             color = 'white';
-            key = this.createWhiteKey()
+            key = this.createWhiteKey(geometry, material);
         } else {
             color = 'black';
-            key = this.createBlackKey()
+            key = this.createBlackKey(geometry, material);
         }
         key.rotation.z = rotation;
-        this._keys.push({ type: color, object: key, notation: notation });
+        this._keys.push({
+            type: color,
+            object: key,
+            notation: notation,
+            originalRotation: {
+                x: key.rotation.x,
+                y: key.rotation.y,
+                z: key.rotation.z }
+        });
         this.add(key,'key_' + notation);
     }
 
     /**
      * create key material
      */
-    createMaterial() {
-        var loader = new THREE.TextureLoader();
-        var envMap = loader.load('./assets/moon.jpg');
-        envMap.mapping = THREE.CubeRefractionMapping;
-        envMap.format = THREE.RGBFormat;
-        return new THREE.MeshLambertMaterial(
-            {   color: 0xffee00,
-                envMap: envMap,
-                refractionRatio: 0.95,
-                combine: THREE.MixOperation,
-                reflectivity: 0.3 });
+    createMaterial(scenecollection, cb) {
+        /*var map = new THREE.TextureLoader().load('./assets/roughness_map.jpg');
+        map.anisotropy = 4;
+        map.repeat.set( 0.1, 0.1 );
+        map.wrapS = map.wrapT = THREE.RepeatWrapping;
+
+        var standardMaterial = new THREE.MeshStandardMaterial( {
+            bumpScale: 0.5,
+            color: 0x6a6a44,
+            metalness: 0.5,
+            roughness: 1,
+            //bumpMap: map,
+            //roughnessMap: map,
+            shading: THREE.FlatShading
+        });
+
+        var ldrCubeRenderTarget;
+        var cubeenvmap = [
+            './assets/domeenvmap/nx2.png', './assets/domeenvmap/ny.png', './assets/domeenvmap/nz.png',
+            './assets/domeenvmap/px2.png', './assets/domeenvmap/py.png', './assets/domeenvmap/pz.png'
+        ];
+
+        new THREE.CubeTextureLoader().load(cubeenvmap,
+                function ( ldrCubeMap ) {
+                    ldrCubeMap.encoding = THREE.GammaEncoding;
+                    var pmremGenerator = new THREE.PMREMGenerator( ldrCubeMap );
+                    pmremGenerator.update( scenecollection.renderer );
+
+                    var pmremCubeUVPacker = new THREE.PMREMCubeUVPacker( pmremGenerator.cubeLods );
+                    pmremCubeUVPacker.update( scenecollection.renderer );
+
+                    ldrCubeRenderTarget = pmremCubeUVPacker.CubeUVRenderTarget;
+                    standardMaterial.envMap = ldrCubeRenderTarget.texture;
+                    standardMaterial.needsUpdate = true;
+                    cb(standardMaterial);
+                }
+        );*/
     }
 
 

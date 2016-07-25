@@ -6,8 +6,7 @@ export default class Lighting extends BaseGroup {
      * @param scene
      * @param custom
      */
-    create(scene, custom) {
-        super.create(scene, custom);
+    onCreate(scene, custom) {
         var light = new THREE.HemisphereLight( 0xffffbb, 0x080820, 4 );
         var spotLight = new THREE.SpotLight( 0x3a3a3a );
         spotLight.position.set( 0, 0, 400 );
@@ -21,6 +20,6 @@ export default class Lighting extends BaseGroup {
         spotLight.shadow.camera.fov = 30;
 
         this.add(spotLight);
-        this.add(light)
+        this.add(light);
     }
 }

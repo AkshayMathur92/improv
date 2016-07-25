@@ -31,7 +31,7 @@ export default class Metronome extends BaseGroup {
             var newrotation = hammer.pivot.rotation[hammer.rotationaxis] + hammer.rate;
             if (newrotation > Math.PI * 3) {
                 newrotation = newrotation - Math.PI * 2;
-                this._synth.triggerAttackRelease(hammer.note, "8n");
+               // this._synth.triggerAttackRelease(hammer.note, "8n");
             }
             hammer.pivot.rotation[hammer.rotationaxis] = newrotation;
             hammer.glow.material.uniforms.viewVector.value =
@@ -46,7 +46,8 @@ export default class Metronome extends BaseGroup {
      */
     addHammer(origin, rate, offset, tone, scenecollection) {
         var hammergeom = new THREE.SphereGeometry(5);
-        var hammertex = THREE.ImageUtils.loadTexture( './assets/moon.jpg' );
+        var hammertexloader = new THREE.TextureLoader();
+        var hammertex = hammertexloader.load('./assets/moon.jpg');
         var hammermat = new THREE.MeshBasicMaterial( { map: hammertex } );
         var centerpivot = new THREE.Object3D();
 

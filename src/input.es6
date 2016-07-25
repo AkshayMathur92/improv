@@ -1,21 +1,19 @@
 import QWERTYKeyManager from './qwertykeymanager.es6';
+import MIDIKeyManager from './midikeymanager.es6';
 import KeySignaturePrediction from './musictheory/keysignatureprediction.es6';
 
 export default class {
-    constructor(mapping, cb) {
+    constructor(type, cb) {
         /**
          * key manager
          * @type {$ES6_ANONYMOUS_CLASS$}
          * @private
          */
-        this._keymanager = new QWERTYKeyManager( (index, value, keys) => this.onKeyChange(index, value, keys));
-
-        /**
-         * key mapping
-         * @type {Array.<string>}
-         * @private
-         */
-        this._keyMapping = mapping;
+        if (type === 'QWERTY') {
+            this._keymanager = new QWERTYKeyManager( changed => this.onKeyChange(changed));
+        } else if (type === 'MIDI') {
+            this._keymanager = new MIDIKeyManager( changed => this.onKeyChange(changed));
+        }
 
         /**
          * key signature prediction
@@ -32,13 +30,11 @@ export default class {
 
     /**
      * on key change
-     * @param index
-     * @param value
-     * @param keys
+     * @param changed
      */
-    onKeyChange(index, value, keys) {
-        var kd = this._keymanager.getKeysDown(this._keyMapping);
+    onKeyChange(changed) {
+        var kd = this._keymanager.getKeysDown();
         var predicted = this._keySigPrediction.update(kd);
-        this._callback.apply(this, [ { current: kd, predictedKey: predicted, keyIndicesChanged: keys }]);
+        this._callback.apply(this, [ { down: kd, predictedKey: predicted, changed: changed }]);
     }
 }

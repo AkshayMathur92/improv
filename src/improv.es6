@@ -7,9 +7,17 @@ import Lighting from './objects/lighting.es6';
 export default class Improv {
     constructor(scene) {
         scene.onCreate = this.create;
-        scene.addObjects([ new Metronome(), new Dome(), new Keyboard(), new Lighting() ]);
+        scene.addObjects([
+            new Metronome(),
+            new Dome(),
+            new Keyboard({ assets: './assets/keyboardkey.json' }),
+            new Lighting() ]);
     }
 
-    create(scene, custom) {}
+    create(scene, custom) {
+        scene.renderer.gammaInput = true;
+        scene.renderer.gammaOutput = true;
+    }
+
     render(scene, custom) {}
 }
