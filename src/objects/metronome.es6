@@ -23,6 +23,7 @@ export default class Metronome extends BaseGroup {
         this.addHammer('left', Math.PI/64, Math.PI, 'A4', scenecollection);
         this.addHammer('up', Math.PI/64, Math.PI/2, 'G5', scenecollection);
         this.addHammer('down', Math.PI/64, 0, 'F3', scenecollection);
+        this.start = Date.now();
     }
 
     onRender(scenecollection, mycollection) {
@@ -34,9 +35,11 @@ export default class Metronome extends BaseGroup {
                // this._synth.triggerAttackRelease(hammer.note, "8n");
             }
             hammer.pivot.rotation[hammer.rotationaxis] = newrotation;
-            hammer.glow.material.uniforms.viewVector.value =
-              new THREE.Vector3().subVectors( scenecollection.camera.position, hammer.pivot.position );
+           // hammer.glow.material.uniforms.viewVector.value =
+             // new THREE.Vector3().subVectors( scenecollection.camera.position, hammer.pivot.position );
         }
+
+        //this.explosionmat.uniforms[ 'time' ].value = .00025 * ( Date.now() - this.start );
     }
 
     /**
@@ -46,30 +49,30 @@ export default class Metronome extends BaseGroup {
      */
     addHammer(origin, rate, offset, tone, scenecollection) {
         var hammergeom = new THREE.SphereGeometry(5);
-        var hammertexloader = new THREE.TextureLoader();
-        var hammertex = hammertexloader.load('./assets/moon.jpg');
-        var hammermat = new THREE.MeshBasicMaterial( { map: hammertex } );
         var centerpivot = new THREE.Object3D();
 
-        var hammer = new THREE.Mesh( hammergeom, hammermat );
+        var textureCube = new THREE.CubeTextureLoader()
+            .setPath( './assets/' )
+            .load( [ 'nx.jpg', 'ny.jpg', 'nz.jpg', 'nx.jpg', 'ny.jpg', 'nz.jpg' ] );
+        textureCube.mapping = THREE.CubeRefractionMapping;
+
+        var innermaterial = new THREE.MeshBasicMaterial( {
+            color: 0xfafafa,
+            envMap: textureCube } );
+
+        var outermaterial = new THREE.MeshBasicMaterial( {
+            color: 0xfafafa,
+            transparent: true,
+            wireframe: true,
+            opacity: 0.1 } );
+
+
+        var hammer = new THREE.Mesh( hammergeom, innermaterial );
         hammer.name = 'ball';
         centerpivot.add(hammer);
         centerpivot.position.z = -400;
 
-        var glowmat = new THREE.ShaderMaterial({
-            uniforms: {
-                "c":   { type: "f", value: 2 },
-                "p":   { type: "f", value: 3 },
-                glowColor: { type: "c", value: new THREE.Color(0xff0000) },
-                viewVector: { type: "v3", value: scenecollection.camera.position }
-            },
-            vertexShader: Shaders.glow.vertex,
-            fragmentShader: Shaders.glow.fragment,
-            side: THREE.FrontSide,
-            blending: THREE.AdditiveBlending,
-            transparent: true, opacity: 0.4 });
-
-        var glow = new THREE.Mesh( hammergeom.clone(), glowmat.clone() );
+        var glow = new THREE.Mesh( hammergeom.clone(), outermaterial );
         glow.name = 'glow';
         glow.scale.multiplyScalar(1.2);
         centerpivot.add(glow);

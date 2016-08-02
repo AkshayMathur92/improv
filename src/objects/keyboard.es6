@@ -17,8 +17,8 @@ export default class Keyboard extends BaseGroup {
         * @private
         */
        this._colors = {
-           white: 0x67B9BF,
-           black: 0x457B7F,
+           white: 0xfafafa,
+           black: 0x8a8a8a,
            suggested: {
                white: 0x8AF7FF,
                black: 0x223E40
@@ -30,7 +30,7 @@ export default class Keyboard extends BaseGroup {
         * @type {$ES6_ANONYMOUS_CLASS$}
         * @private
         */
-       this._input = new Input('MIDI', (keys) => this.onKeyInputChange(keys) );
+       this._input = new Input('QWERTY', (keys) => this.onKeyInputChange(keys) );
 
        /**
         * suggested keys from key signature prediction
@@ -66,7 +66,7 @@ export default class Keyboard extends BaseGroup {
      */
     onAssetsLoaded(geometry) {
         var mat = new THREE.MeshStandardMaterial( {
-            metalness: 0.5,
+            metalness: 0.7,
             roughness: 1,
             side: THREE.FrontSide,
             shading: THREE.FlatShading
@@ -94,7 +94,8 @@ export default class Keyboard extends BaseGroup {
             }
         }
         this.group.rotation.z = Math.PI;
-        this.group.position.z = -30;
+        this.group.position.z = -400;
+        this.group.scale.set(10, 10, 10);
     }
 
     /**

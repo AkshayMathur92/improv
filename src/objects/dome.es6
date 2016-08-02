@@ -8,6 +8,7 @@ export default class Dome extends BaseGroup {
      */
     onCreate(scene, custom) {
         var mesh = new THREE.Mesh(this.createGeometry(), this.createMaterial());
+        mesh.position.z = 5;
         this.add(mesh, 'dome');
     }
 
