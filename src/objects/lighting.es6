@@ -1,4 +1,5 @@
 import BaseGroup from '../../node_modules/ccwc-threejs-vrscene/src/basegroup.es6';
+import Style from '../themeing/style.es6';
 
 export default class Lighting extends BaseGroup {
     /**
@@ -7,8 +8,8 @@ export default class Lighting extends BaseGroup {
      * @param custom
      */
     onCreate(scene, custom) {
-        var light = new THREE.HemisphereLight( 0xffffbb, 0x080820, 4 );
-        var spotLight = new THREE.SpotLight( 0x3a3a3a );
+        var light = new THREE.HemisphereLight( Style.lighting.hemisphere.top, Style.lighting.hemisphere.bottom, 4 );
+        var spotLight = new THREE.SpotLight( Style.lighting.spotlight );
         spotLight.position.set( 0, 0, 400 );
         spotLight.rotation.x = Math.PI / 2;
 

@@ -3,7 +3,8 @@
   "version": "0.0.1",
   "dependencies": {
     "ccwc-threejs-vrscene": "https://github.com/bengfarrell/improv.git",
-    "tone": "^0.6.1"
+    "tone": "^0.6.1",
+    "createjs-tweenjs": "^0.6.0"
   },
   "devDependencies": {
     "async": "^1.5.2",
@@ -13,6 +14,7 @@
     "browserify": "^13.0.0",
     "gulp": "^3.9.0",
     "gulp-babel": "^5.2.0",
+    "gulp-concat": "^2.6.0",
     "gulp-sourcemaps": "^1.5.2",
     "install": "^0.8.1",
     "npm": "^3.9.3",

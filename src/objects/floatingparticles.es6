@@ -1,15 +1,16 @@
 import BaseGroup from '../../node_modules/ccwc-threejs-vrscene/src/basegroup.es6';
+import Style from '../themeing/style.es6';
 
 export default class FloatingParticles extends BaseGroup {
     /**
-     * on create scene (or earliest possible opportunity)
+     * on create scene
      * @param scene
      * @param custom
      */
     onCreate(scene, custom) {
         var geometry = new THREE.Geometry();
         var textureLoader = new THREE.TextureLoader();
-        var sprite = textureLoader.load( './assets/snowflake1.png');
+        var sprite = textureLoader.load(Style.floatingparticles.sprite);
 
         for (var i = 0; i < 10000; i ++) {
             var vertex = new THREE.Vector3();

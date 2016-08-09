@@ -5,6 +5,7 @@ var browserify = require('browserify');
 var babelify = require('babelify');
 var source = require('vinyl-source-stream');
 var gl2js = require('gulp-gl2js');
+var concat = require('gulp-concat');
 
 gulp.task('build', function () {
     return browserify({
@@ -20,6 +21,15 @@ gulp.task('build', function () {
         .pipe(gulp.dest('./'));
 });
 
+
+gulp.task('libs', function() {
+    return gulp.src([
+        './node_modules/createjs-tweenjs/lib/tweenjs-0.6.0.min.js',
+        './node_modules/tone/build/Tone.min.js'])
+        .pipe(concat('libs.js'))
+        .pipe(gulp.dest('./'));
+});
+
 /**
  * Extra shaders, more of a playground to test a bunch of them
  */
@@ -29,4 +39,4 @@ gulp.task('shaders', function() {
         .pipe(gulp.dest('./src'));
 });
 
-gulp.task('default', ['build']);
+gulp.task('default', ['build', 'libs']);

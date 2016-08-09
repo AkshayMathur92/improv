@@ -1,4 +1,5 @@
 import BaseGroup from '../../node_modules/ccwc-threejs-vrscene/src/basegroup.es6';
+import Style from '../themeing/style.es6';
 
 export default class Dome extends BaseGroup {
     /**
@@ -25,9 +26,9 @@ export default class Dome extends BaseGroup {
      */
     createMaterial() {
         return new THREE.MeshPhongMaterial({
-            color      :  new THREE.Color("rgb(30,30,30)"),
-            emissive   :  new THREE.Color("rgb(30,30,30)"),
-            specular   :  new THREE.Color("rgb(100,100,100)"),
+            color      :  Style.dome.color,
+            emissive   :  Style.dome.emissive,
+            specular   :  Style.dome.specular,
             side       :  THREE.BackSide,
             shininess  :  10,
             shading    :  THREE.FlatShading,

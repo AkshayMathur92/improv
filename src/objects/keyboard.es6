@@ -1,6 +1,7 @@
 import BaseGroup from '../../node_modules/ccwc-threejs-vrscene/src/basegroup.es6';
 import Input from '../input.es6';
 import Note from '../musictheory/note.es6';
+import Style from '../themeing/style.es6';
 
 export default class Keyboard extends BaseGroup {
    onInitialize() {
@@ -17,8 +18,8 @@ export default class Keyboard extends BaseGroup {
         * @private
         */
        this._colors = {
-           white: 0xfafafa,
-           black: 0x8a8a8a,
+           white: Style.keys.white, //0xfafafa,
+           black: Style.keys.black, //0x8a8a8a,
            suggested: {
                white: 0x8AF7FF,
                black: 0x223E40
@@ -218,48 +219,6 @@ export default class Keyboard extends BaseGroup {
                 z: key.rotation.z }
         });
         this.add(key,'key_' + notation);
-    }
-
-    /**
-     * create key material
-     */
-    createMaterial(scenecollection, cb) {
-        /*var map = new THREE.TextureLoader().load('./assets/roughness_map.jpg');
-        map.anisotropy = 4;
-        map.repeat.set( 0.1, 0.1 );
-        map.wrapS = map.wrapT = THREE.RepeatWrapping;
-
-        var standardMaterial = new THREE.MeshStandardMaterial( {
-            bumpScale: 0.5,
-            color: 0x6a6a44,
-            metalness: 0.5,
-            roughness: 1,
-            //bumpMap: map,
-            //roughnessMap: map,
-            shading: THREE.FlatShading
-        });
-
-        var ldrCubeRenderTarget;
-        var cubeenvmap = [
-            './assets/domeenvmap/nx2.png', './assets/domeenvmap/ny.png', './assets/domeenvmap/nz.png',
-            './assets/domeenvmap/px2.png', './assets/domeenvmap/py.png', './assets/domeenvmap/pz.png'
-        ];
-
-        new THREE.CubeTextureLoader().load(cubeenvmap,
-                function ( ldrCubeMap ) {
-                    ldrCubeMap.encoding = THREE.GammaEncoding;
-                    var pmremGenerator = new THREE.PMREMGenerator( ldrCubeMap );
-                    pmremGenerator.update( scenecollection.renderer );
-
-                    var pmremCubeUVPacker = new THREE.PMREMCubeUVPacker( pmremGenerator.cubeLods );
-                    pmremCubeUVPacker.update( scenecollection.renderer );
-
-                    ldrCubeRenderTarget = pmremCubeUVPacker.CubeUVRenderTarget;
-                    standardMaterial.envMap = ldrCubeRenderTarget.texture;
-                    standardMaterial.needsUpdate = true;
-                    cb(standardMaterial);
-                }
-        );*/
     }
 
 
