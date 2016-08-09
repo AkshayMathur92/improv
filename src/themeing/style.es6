@@ -33,7 +33,8 @@ export default {
     },
 
     floatingparticles: {
-        sprite: './assets/snowflake1.png'
+        sprite: './assets/snowflake1.png',
+        color: Colors.neutral.mid[1]
     },
 
     lighting: {

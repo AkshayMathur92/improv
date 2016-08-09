@@ -23,13 +23,13 @@ export default class FloatingParticles extends BaseGroup {
         this.materials = [];
         for (var i = 0; i < 4; i ++ ) {
             this.materials[i] = new THREE.PointsMaterial({
-                size: Math.random()*3,
+                size: Math.random()*1.0 + .75,
                 map: sprite,
                 blending: THREE.AdditiveBlending,
                 depthTest: false,
                 transparent : true });
 
-            this.materials[i].color.setHSL( 0, 1, .5 );
+            this.materials[i].color.set(Style.floatingparticles.color);
 
             var particles = new THREE.Points( geometry, this.materials[i] );
 
@@ -50,10 +50,10 @@ export default class FloatingParticles extends BaseGroup {
             }
         }
 
-        for ( i = 0; i < this.materials.length; i ++ ) {
+        /*for ( i = 0; i < this.materials.length; i ++ ) {
             var h = ( 360 * ( 0 + time ) % 360 ) / 360;
             this.materials[i].color.setHSL( 1, .5, h );
-        }
+        }*/
     }
 
 }
