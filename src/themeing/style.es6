@@ -35,7 +35,7 @@ export default {
 
     metronome: {
         drum: {
-            bumpmap: './assets/ripplemap.jpg',
+            bumpmap: './assets/images/ripplemap.jpg',
             color: Colors.neutral.darkred,
             hitcolor: Colors.neon.blue,
             emissive: Colors.grayscale[0],
@@ -44,12 +44,12 @@ export default {
 
         hammer: {
             refractioncube: [
-                './assets/nx.jpg',
-                './assets/ny.jpg',
-                './assets/nz.jpg',
-                './assets/nx.jpg',
-                './assets/ny.jpg',
-                './assets/nz.jpg' ],
+                './assets/images/nx.jpg',
+                './assets/images/ny.jpg',
+                './assets/images/nz.jpg',
+                './assets/images/nx.jpg',
+                './assets/images/ny.jpg',
+                './assets/images/nz.jpg' ],
             color: Colors.neutral.red,
             hitcolor: Colors.neon.blue
         }

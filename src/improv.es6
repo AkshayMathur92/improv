@@ -12,7 +12,7 @@ export default class Improv {
             new Metronome(),
             new FloatingParticles(),
             new Dome(),
-            new Keyboard({ assets: './assets/keyboardkey.json' }),
+            new Keyboard({ assets: './assets/models/keyboardkey.json' }),
             new Lighting() ]);
     }
 

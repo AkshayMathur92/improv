@@ -21,22 +21,6 @@ export default class Keyboard extends BaseGroup {
        this._keys = [];
 
        /**
-        * colors
-        * @type {{whitekey: number, blackkey: number}}
-        * @private
-        */
-       /*this._colors = {
-           white: 0xfafafa, // Style.keys.white, //0xfafafa,
-           black: 0x8a8a8a, // Style.keys.black, //0x8a8a8a,
-           suggested: {
-               white: 0x5B5B58, //Style.keys.suggestedWhite, // 0x8AF7FF,
-               black: 0x6B2E67, //Style.keys.suggestedBlack, /// 0x223E40
-           },
-
-           emissive: { normal: 0x000000, suggested: 0x6a6a6a }
-       };*/
-
-       /**
         * keyboard/key input
         * @type {$ES6_ANONYMOUS_CLASS$}
         * @private
