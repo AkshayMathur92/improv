@@ -2,9 +2,17 @@ import BaseGroup from '../../node_modules/ccwc-threejs-vrscene/src/basegroup.es6
 import Input from '../input.es6';
 import Note from '../musictheory/note.es6';
 import Style from '../themeing/style.es6';
+import Utils from '../utils.es6';
 
 export default class Keyboard extends BaseGroup {
    onInitialize() {
+       /**
+        * inactivity timer for suggestions
+        * @type {null}
+        * @private
+        */
+       this._inactivityTimer = null;
+
        /**
         * key visuals
         * @type {Array}
@@ -17,14 +25,16 @@ export default class Keyboard extends BaseGroup {
         * @type {{whitekey: number, blackkey: number}}
         * @private
         */
-       this._colors = {
-           white: Style.keys.white, //0xfafafa,
-           black: Style.keys.black, //0x8a8a8a,
+       /*this._colors = {
+           white: 0xfafafa, // Style.keys.white, //0xfafafa,
+           black: 0x8a8a8a, // Style.keys.black, //0x8a8a8a,
            suggested: {
-               white: 0x8AF7FF,
-               black: 0x223E40
-           }
-       };
+               white: 0x5B5B58, //Style.keys.suggestedWhite, // 0x8AF7FF,
+               black: 0x6B2E67, //Style.keys.suggestedBlack, /// 0x223E40
+           },
+
+           emissive: { normal: 0x000000, suggested: 0x6a6a6a }
+       };*/
 
        /**
         * keyboard/key input
@@ -40,13 +50,6 @@ export default class Keyboard extends BaseGroup {
        this.suggestedKeys = [];
 
        /**
-        * scene
-        * @type {null}
-        * @private
-        */
-       this._scene = null;
-
-       /**
         * current key signature
         * @type {String}
         */
@@ -57,8 +60,26 @@ export default class Keyboard extends BaseGroup {
      * @param scene
      * @param custom
      */
-    onCreate(scene, custom) {
-        this._scene = scene;
+    onCreate(scene, custom) {}
+
+    /**
+     * on render scene
+     * @param scene
+     * @param custom
+     */
+    onRender(scene, custom) {
+        for (var c = 0; c < this._keys.length; c++) {
+            if (this._keys[c].colortween.animating) {
+                this._keys[c].object.material.color.setRGB(
+                    this._keys[c].colortween.rcolor/100,
+                    this._keys[c].colortween.gcolor/100,
+                    this._keys[c].colortween.bcolor/100 );
+                this._keys[c].object.material.emissive.setRGB(
+                    this._keys[c].colortween.remissive/100,
+                    this._keys[c].colortween.gemissive/100,
+                    this._keys[c].colortween.bemissive/100 );
+            }
+        }
     }
 
     /**
@@ -97,6 +118,27 @@ export default class Keyboard extends BaseGroup {
         this.group.rotation.z = Math.PI;
         this.group.position.z = -400;
         this.group.scale.set(10, 10, 10);
+    }
+
+    /**
+     * on inactivity (fade away keys and clear key sig)
+     */
+    onInactive() {
+        for (var c = 0; c < this._keys.length; c++) {
+            if (this._keys[c].suggested) {
+                Utils.copyPropsTo(this._keys[c].colortween, Utils.decToRGB(Style.keys.suggested[this._keys[c].type].emissive, 100), 'emissive');
+                Utils.copyPropsTo(this._keys[c].colortween, Utils.decToRGB(Style.keys.suggested[this._keys[c].type].color, 100), 'color');
+                this._keys[c].colortween.animating = true;
+
+                var target = Utils.copyPropsTo({}, Utils.decToRGB(Style.keys.normal[this._keys[c].type].color, 100), 'emissive');
+                Utils.copyPropsTo(target, Utils.decToRGB(Style.keys.normal[this._keys[c].type].emissive, 100), 'color');
+
+                createjs.Tween.get(this._keys[c].colortween)
+                    .to(target, 2000)
+                    .wait(100) // wait a few ticks, or the render cycle won't pick up the changes with the flag
+                    .call( function() { this.animating = false; } );
+            }
+        }
     }
 
     /**
@@ -143,11 +185,14 @@ export default class Keyboard extends BaseGroup {
      */
     toggleKeyPressed(key, velocity) {
         if (velocity === 0) {
+            clearTimeout(this._inactivityTimer);
             key.object.rotation.set(key.originalRotation.x, key.originalRotation.y, key.originalRotation.z);
             key.currentRotation = 0;
+            key.down = false;
         } else {
             key.currentRotation = velocity * Math.PI/16;
             key.object.rotateX(key.currentRotation);
+            key.down = true;
         }
     }
 
@@ -160,9 +205,22 @@ export default class Keyboard extends BaseGroup {
         var keys = this.findKeyObjectsForNotation(notation);
         for (var c = 0; c < keys.length; c++) {
             if (toggle) {
-                keys[c].object.material.color.setHex(this._colors.suggested[keys[0].type]);
-            } else {
-                keys[c].object.material.color.setHex(this._colors[keys[0].type]);
+                clearTimeout(this._inactivityTimer);
+                this._inactivityTimer = setTimeout( () => this.onInactive(), 5000);
+
+                var clr;
+                if ( c===1 || c===3 || c===5 || c===7) {
+                    clr = Style.keys.stronglySuggested[keys[c].type];
+                } else {
+                    clr = Style.keys.suggested[keys[c].type];
+                }
+                keys[c].object.material.color.setHex(clr.color);
+                keys[c].object.material.emissive.setHex(clr.emissive);
+                keys[c].suggested = true;
+             } else {
+                keys[c].object.material.color.setHex(Style.keys.normal[keys[c].type].color);
+                keys[c].object.material.emissive.setHex(Style.keys.normal[keys[c].type].emissive);
+                keys[c].suggested = false;
             }
         }
     }
@@ -174,7 +232,8 @@ export default class Keyboard extends BaseGroup {
     createWhiteKey(geometry, material) {
         var keygeom = geometry.clone();
         var mat = material.clone();
-        mat.color.setHex(this._colors.white);
+        mat.color.setHex(Style.keys.normal.white.color);
+        mat.emissive.setHex(Style.keys.normal.white.emissive);
         keygeom.translate( 0, -10, 0 );
         var key = new THREE.Mesh( keygeom, mat);
         return key;
@@ -187,7 +246,8 @@ export default class Keyboard extends BaseGroup {
     createBlackKey(geometry, material) {
         var keygeom = geometry.clone();
         var mat = material.clone();
-        mat.color.setHex(this._colors.black);
+        mat.color.setHex(Style.keys.normal.black.color);
+        mat.emissive.setHex(Style.keys.normal.black.emissive);
         keygeom.translate( 0, -25, 0 );
         keygeom.scale(1, .5, 1);
         var key = new THREE.Mesh( keygeom, mat);
@@ -212,6 +272,7 @@ export default class Keyboard extends BaseGroup {
         this._keys.push({
             type: color,
             object: key,
+            colortween: {},
             notation: notation,
             originalRotation: {
                 x: key.rotation.x,

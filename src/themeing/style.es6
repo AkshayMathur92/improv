@@ -1,16 +1,45 @@
 import Colors from './colors.es6';
 export default {
     keys: {
-        white: Colors.neutral.mid[0],
-        black: Colors.neutral.dark[0]
+        normal: {
+            white: {
+                emissive: Colors.grayscale[3],
+                color: Colors.neutral.red
+            },
+            black: {
+                emissive: Colors.grayscale[1],
+                color: Colors.neutral.red
+            }
+        },
+        suggested: {
+            white: {
+                emissive: Colors.grayscale[4],
+                color: Colors.neon.green
+            },
+            black: {
+                emissive: Colors.grayscale[2],
+                color: Colors.neon.green
+            }
+        },
+        stronglySuggested: {
+            white: {
+                emissive: Colors.grayscale[4],
+                color: Colors.neon.orange
+            },
+            black: {
+                emissive: Colors.grayscale[2],
+                color: Colors.neon.orange
+            }
+        }
     },
 
     metronome: {
         drum: {
             bumpmap: './assets/ripplemap.jpg',
-            color: Colors.neutral.dark[0], //0xfafafa,
-            hitcolor: Colors.colorful.light[0],
-            specular: Colors.neutral.dark[0] //0x222222
+            color: Colors.neutral.darkred,
+            hitcolor: Colors.neon.blue,
+            emissive: Colors.grayscale[0],
+            specular: Colors.neutral.grayblue
         },
 
         hammer: {
@@ -21,27 +50,27 @@ export default {
                 './assets/nx.jpg',
                 './assets/ny.jpg',
                 './assets/nz.jpg' ],
-            color: Colors.neutral.mid[0],
-            hitcolor: Colors.colorful.light[0]
+            color: Colors.neutral.red,
+            hitcolor: Colors.neon.blue
         }
     },
 
     dome: {
-        color: Colors.neutral.dark[0], //0x1E1E1E,
-        emissive: Colors.neutral.dark[0], //0x1E1E1E,
-        specular: Colors.neutral.mid[0], //0x646464
+        color: Colors.neutral.darkred,
+        emissive: Colors.neutral.darkred,
+        specular: Colors.neutral.red
     },
 
     floatingparticles: {
         sprite: './assets/snowflake1.png',
-        color: Colors.neutral.mid[1]
+        color: Colors.grayscale[2]
     },
 
     lighting: {
         hemisphere: {
-            top: Colors.neutral.dark[0], //0xffffbb,
-            bottom: Colors.neutral.mid[1] //0x080820
+            top: Colors.neutral.darkred,
+            bottom: Colors.neutral.green
         },
-        spotlight: Colors.neutral.dark[0] //0x3a3a3a
+        spotlight: Colors.grayscale[1]
     }
 }

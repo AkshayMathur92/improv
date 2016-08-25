@@ -1,7 +1,7 @@
 import Shaders from './../shaders.es6';
 import BaseGroup from '../../node_modules/ccwc-threejs-vrscene/src/basegroup.es6';
 import Style from '../themeing/style.es6';
-import Colors from '../themeing/colors.es6';
+import Utils from '../utils.es6';
 
 export default class Metronome extends BaseGroup {
     onInitialize() {
@@ -93,8 +93,8 @@ export default class Metronome extends BaseGroup {
     triggerDrum(hammer) {
         this._synth.triggerAttackRelease(hammer.note, "16n");
         hammer.animatingGlow = true;
-        var startcolor = Colors.decToRGB(Style.metronome.hammer.color, 100);
-        var endcolor = Colors.decToRGB(Style.metronome.hammer.hitcolor, 100);
+        var startcolor = Utils.decToRGB(Style.metronome.hammer.color, 100);
+        var endcolor = Utils.decToRGB(Style.metronome.hammer.hitcolor, 100);
         hammer.glowColor.r = startcolor.r;
         hammer.glowColor.g = startcolor.g;
         hammer.glowColor.b = startcolor.b;
@@ -104,8 +104,8 @@ export default class Metronome extends BaseGroup {
             .wait(100) // wait a few ticks, or the render cycle won't pick up the changes with the flag
             .call( function (scope) { scope.animatingGlow = false; } );
 
-        var startcolor = Colors.decToRGB(Style.metronome.drum.color, 100);
-        var endcolor = Colors.decToRGB(Style.metronome.drum.hitcolor, 100);
+        var startcolor = Utils.decToRGB(Style.metronome.drum.color, 100);
+        var endcolor = Utils.decToRGB(Style.metronome.drum.hitcolor, 100);
         this._tweenTargets.drum.props.r = startcolor.r;
         this._tweenTargets.drum.props.g = startcolor.g;
         this._tweenTargets.drum.props.b = startcolor.b;
@@ -139,6 +139,7 @@ export default class Metronome extends BaseGroup {
 
         var material = new THREE.MeshPhongMaterial( {
             color: Style.metronome.drum.color,
+            emissive: Style.metronome.drum.emissive,
             specular: Style.metronome.drum.specular,
             bumpMap: mapHeight,
             bumpScale: 0,
@@ -169,7 +170,7 @@ export default class Metronome extends BaseGroup {
             color: Style.metronome.hammer.color,
             transparent: true,
             wireframe: true,
-            opacity: 0.1 } );
+            opacity: 0.5 } );
 
 
         var hammer = new THREE.Mesh( hammergeom, innermaterial );
