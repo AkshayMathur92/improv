@@ -29,6 +29,13 @@ export default class {
     }
 
     /**
+     * clear prediction history
+     */
+    clearPredictionHistory() {
+        this._keySigPrediction.clearHistory();
+    }
+
+    /**
      * on key change
      * @param changed
      */

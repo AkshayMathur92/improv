@@ -13,21 +13,21 @@ export default {
         },
         suggested: {
             white: {
-                emissive: Colors.grayscale[4],
+                emissive: Colors.grayscale[2],
                 color: Colors.neon.green
             },
             black: {
-                emissive: Colors.grayscale[2],
+                emissive: Colors.grayscale[1],
                 color: Colors.neon.green
             }
         },
         stronglySuggested: {
             white: {
-                emissive: Colors.grayscale[4],
+                emissive: Colors.grayscale[2],
                 color: Colors.neon.orange
             },
             black: {
-                emissive: Colors.grayscale[2],
+                emissive: Colors.grayscale[1],
                 color: Colors.neon.orange
             }
         }
@@ -62,7 +62,7 @@ export default {
     },
 
     floatingparticles: {
-        sprite: './assets/snowflake1.png',
+        sprite: './assets/images/snowflake1.png',
         color: Colors.grayscale[2]
     },
 

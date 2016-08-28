@@ -3,24 +3,11 @@ import Note from './note.es6';
 export default class {
     constructor() {
         /**
-         * key mapping
-         * @type {Array.<string>}
-         * @private
-         */
-        this._keyMapping = Note.sharpNotations.concat(Note.sharpNotations);
-
-        /**
          * key signature score history
          * @type {Array}
          * @private
          */
         this._keySignatureScoreHistory = [];
-
-        /**
-         * weight for current keys pressed (to set apart and be stronger scoring from past keys pressed)
-         * @type {number}
-         */
-        this.currentKeyScoreWeight = 2;
 
         /**
          * history decay rate
@@ -55,6 +42,13 @@ export default class {
 
         this.decayHistoricalScores();
         return this.applyCurrentScoreToHistory(scores);
+    }
+
+    /**
+     * clear history
+     */
+    clearHistory() {
+        this._keySignatureScoreHistory = [];
     }
 
     /**

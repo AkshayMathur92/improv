@@ -110,13 +110,15 @@ export default class Keyboard extends BaseGroup {
     onInactive() {
         for (var c = 0; c < this._keys.length; c++) {
             if (this._keys[c].suggested) {
-                Utils.copyPropsTo(this._keys[c].colortween, Utils.decToRGB(Style.keys.suggested[this._keys[c].type].emissive, 100), 'emissive');
-                Utils.copyPropsTo(this._keys[c].colortween, Utils.decToRGB(Style.keys.suggested[this._keys[c].type].color, 100), 'color');
+                var suggestionType = this._keys[c].suggested;
+                Utils.copyPropsTo(this._keys[c].colortween, Utils.decToRGB(Style.keys[suggestionType][this._keys[c].type].emissive, 100), 'emissive');
+                Utils.copyPropsTo(this._keys[c].colortween, Utils.decToRGB(Style.keys[suggestionType][this._keys[c].type].color, 100), 'color');
                 this._keys[c].colortween.animating = true;
 
                 var target = Utils.copyPropsTo({}, Utils.decToRGB(Style.keys.normal[this._keys[c].type].color, 100), 'emissive');
                 Utils.copyPropsTo(target, Utils.decToRGB(Style.keys.normal[this._keys[c].type].emissive, 100), 'color');
 
+                this._input.clearPredictionHistory();
                 createjs.Tween.get(this._keys[c].colortween)
                     .to(target, 2000)
                     .wait(100) // wait a few ticks, or the render cycle won't pick up the changes with the flag
@@ -158,7 +160,7 @@ export default class Keyboard extends BaseGroup {
         this.suggestedKeys = Note.keys[keysig];
 
         for (c = 0; c < this.suggestedKeys.length; c++) {
-            this.toggleKeySuggestion(this.suggestedKeys[c], true);
+            this.toggleKeySuggestion(this.suggestedKeys[c], true, c);
         }
     }
 
@@ -184,23 +186,24 @@ export default class Keyboard extends BaseGroup {
      * toggle key suggestion
      * @param notation
      * @param toggle
+     * @param index in keysig
      */
-    toggleKeySuggestion(notation, toggle) {
+    toggleKeySuggestion(notation, toggle, index) {
         var keys = this.findKeyObjectsForNotation(notation);
         for (var c = 0; c < keys.length; c++) {
             if (toggle) {
                 clearTimeout(this._inactivityTimer);
                 this._inactivityTimer = setTimeout( () => this.onInactive(), 5000);
-
                 var clr;
-                if ( c===1 || c===3 || c===5 || c===7) {
+                if ( index===0 || index===2 || index===4 || index===6) {
                     clr = Style.keys.stronglySuggested[keys[c].type];
+                    keys[c].suggested = 'stronglySuggested';
                 } else {
                     clr = Style.keys.suggested[keys[c].type];
+                    keys[c].suggested = 'suggested';
                 }
                 keys[c].object.material.color.setHex(clr.color);
                 keys[c].object.material.emissive.setHex(clr.emissive);
-                keys[c].suggested = true;
              } else {
                 keys[c].object.material.color.setHex(Style.keys.normal[keys[c].type].color);
                 keys[c].object.material.emissive.setHex(Style.keys.normal[keys[c].type].emissive);
@@ -269,7 +272,7 @@ export default class Keyboard extends BaseGroup {
 
     /**
      * find the key for a specific notation
-     * todo: choose most appropritae octave
+     * todo: choose most appropriate octave
      * @param notation
      * @returns {Array}
      */
