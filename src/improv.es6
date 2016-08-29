@@ -7,6 +7,7 @@ import Lighting from './objects/lighting.es6';
 
 export default class Improv {
     constructor(scene) {
+        console.log(scene)
         scene.onCreate = this.create;
         scene.addObjects([
             new Metronome(),

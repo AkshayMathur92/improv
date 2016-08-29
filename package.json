@@ -2,9 +2,10 @@
   "name": "improv",
   "version": "0.0.1",
   "dependencies": {
-    "ccwc-threejs-vrscene": "https://github.com/bengfarrell/improv.git",
+    "ccwc-threejs-vrscene": "git://github.com/creativecode-webcomponents/ccwc-threejs-vrscene.git",
+    "createjs-tweenjs": "^0.6.0",
     "tone": "^0.6.1",
-    "createjs-tweenjs": "^0.6.0"
+    "webcomponents.js": "^0.7.22"
   },
   "devDependencies": {
     "async": "^1.5.2",
@@ -18,10 +19,8 @@
     "gulp-sourcemaps": "^1.5.2",
     "install": "^0.8.1",
     "npm": "^3.9.3",
-    "sensortag": "^1.2.2",
     "vinyl-buffer": "^1.0.0",
     "vinyl-source-stream": "^1.1.0",
-    "websocket": "^1.0.23",
     "gulp-gl2js": "git://github.com/bengfarrell/gulp-gl2js.git"
   },
   "browserify": {

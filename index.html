@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <title>Improv</title>
-    <link rel="import" href="./node_modules/ccwc-threejs-vrscene/ccwc-threejs-vrscene.html">
     <script src="./improv.js"></script>
     <script src="./libs.js"></script>
+    <script src="./node_modules/ccwc-threejs-vrscene/vrscene.js"></script>
     <style>
         body {
             width: 100vw;
@@ -25,7 +25,9 @@
 <body>
     <ccwc-threejs-vrscene antialias inspectable></ccwc-threejs-vrscene>
     <script>
-        var improv = new Improv.default(document.querySelector('ccwc-threejs-vrscene'));
+        setTimeout( function() {
+            var improv = new Improv.default(document.querySelector('ccwc-threejs-vrscene'));
+        }, 500);
     </script>
 </body>
 </html>
