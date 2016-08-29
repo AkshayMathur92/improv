@@ -1,5 +1,5 @@
 import Shaders from './../shaders.es6';
-import BaseGroup from '../../node_modules/ccwc-threejs-vrscene/src/basegroup.es6';
+import BaseGroup from '../../node_modules/trivr/src/basegroup.es6';
 import Style from '../themeing/style.es6';
 import Utils from '../utils.es6';
 

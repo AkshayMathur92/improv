@@ -2,7 +2,7 @@
   "name": "improv",
   "version": "0.0.1",
   "dependencies": {
-    "ccwc-threejs-vrscene": "git://github.com/creativecode-webcomponents/ccwc-threejs-vrscene.git",
+    "trivr": "git://github.com/creativecode-webcomponents/trivr.git",
     "createjs-tweenjs": "^0.6.0",
     "tone": "^0.6.1",
     "webcomponents.js": "^0.7.22"
