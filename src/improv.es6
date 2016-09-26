@@ -6,13 +6,13 @@ import FloatingParticles from './objects/floatingparticles.es6';
 import Lighting from './objects/lighting.es6';
 
 export default class Improv {
-    constructor(scene) {
+    constructor(scene, params) {
         scene.onCreate = this.create;
         scene.addObjects([
             new Metronome(),
             new FloatingParticles(),
             new Dome(),
-            new Keyboard({ assets: './assets/models/keyboardkey.json' }),
+            new Keyboard({ assets: './assets/models/keyboardkey.json', input: params.input }),
             new Lighting() ]);
     }
 

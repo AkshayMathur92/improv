@@ -195,12 +195,11 @@ function _classCallCheck(instance, Constructor) {
 }
 
 var Improv = function () {
-    function Improv(scene) {
+    function Improv(scene, params) {
         _classCallCheck(this, Improv);
 
-        console.log('hi', scene);
         scene.onCreate = this.create;
-        scene.addObjects([new _metronome2.default(), new _floatingparticles2.default(), new _dome2.default(), new _keyboard2.default({ assets: './assets/models/keyboardkey.json' }), new _lighting2.default()]);
+        scene.addObjects([new _metronome2.default(), new _floatingparticles2.default(), new _dome2.default(), new _keyboard2.default({ assets: './assets/models/keyboardkey.json', input: params.input }), new _lighting2.default()]);
     }
 
     _createClass(Improv, [{
@@ -1129,7 +1128,7 @@ var Keyboard = function (_BaseGroup) {
 
     _createClass(Keyboard, [{
         key: 'onInitialize',
-        value: function onInitialize() {
+        value: function onInitialize(params) {
             var _this2 = this;
 
             /**
@@ -1151,7 +1150,7 @@ var Keyboard = function (_BaseGroup) {
              * @type {$ES6_ANONYMOUS_CLASS$}
              * @private
              */
-            this._input = new _input2.default('QWERTY', function (keys) {
+            this._input = new _input2.default(params.input, function (keys) {
                 return _this2.onKeyInputChange(keys);
             });
 

@@ -5,7 +5,7 @@ import Style from '../themeing/style.es6';
 import Utils from '../utils.es6';
 
 export default class Keyboard extends BaseGroup {
-   onInitialize() {
+   onInitialize(params) {
        /**
         * inactivity timer for suggestions
         * @type {null}
@@ -25,7 +25,7 @@ export default class Keyboard extends BaseGroup {
         * @type {$ES6_ANONYMOUS_CLASS$}
         * @private
         */
-       this._input = new Input('QWERTY', (keys) => this.onKeyInputChange(keys) );
+       this._input = new Input(params.input, (keys) => this.onKeyInputChange(keys) );
 
        /**
         * suggested keys from key signature prediction
