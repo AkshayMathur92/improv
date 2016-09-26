@@ -601,7 +601,7 @@ var _class = function () {
                         keysigScores[sig]++;
 
                         if (keys[d].notation === sig) {
-                            keysigScores[sig] += .5; // small priority boost for root note
+                            keysigScores[sig] += .01; // small priority boost for root note
                         }
                     }
                 }

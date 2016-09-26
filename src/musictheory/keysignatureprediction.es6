@@ -33,7 +33,7 @@ export default class {
                     keysigScores[sig] ++;
 
                     if (keys[d].notation === sig) {
-                        keysigScores[sig] += .5; // small priority boost for root note
+                        keysigScores[sig] += .01; // small priority boost for root note
                     }
                 }
             }
@@ -45,7 +45,6 @@ export default class {
         }
 
         this.decayHistoricalScores();
-        console.log(this._keySignatureScoreHistory)
         return this.applyCurrentScoreToHistory(scores);
     }
 
