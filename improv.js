@@ -599,6 +599,10 @@ var _class = function () {
                             keysigScores[sig] = 0;
                         }
                         keysigScores[sig]++;
+
+                        if (keys[d].notation === sig) {
+                            keysigScores[sig] += .5; // small priority boost for root note
+                        }
                     }
                 }
             }
@@ -609,6 +613,7 @@ var _class = function () {
             }
 
             this.decayHistoricalScores();
+            console.log(this._keySignatureScoreHistory);
             return this.applyCurrentScoreToHistory(scores);
         }
 
