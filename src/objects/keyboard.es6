@@ -3,6 +3,7 @@ import Input from '../input.es6';
 import Note from '../musictheory/note.es6';
 import Style from '../themeing/style.es6';
 import Utils from '../utils.es6';
+import TonePlayback from '../toneplayback.es6';
 
 export default class Keyboard extends BaseGroup {
    onInitialize(params) {
@@ -19,6 +20,20 @@ export default class Keyboard extends BaseGroup {
         * @private
         */
        this._keys = [];
+
+       /**
+        * midi channels used
+        * @type {Array}
+        * @private
+        */
+       this._midichannels = [];
+
+       /**
+        * starting index at which point to allocate MIDI channels
+        * @type {number}
+        * @private
+        */
+       this._midiChannelStartIndex = 11;
 
        /**
         * keyboard/key input
@@ -44,7 +59,9 @@ export default class Keyboard extends BaseGroup {
      * @param scene
      * @param custom
      */
-    onCreate(scene, custom) {}
+    onCreate(scene, custom) {
+        //TonePlayback.addEventListener('mididata', data => this.onSongData(data));
+    }
 
     /**
      * on render scene
@@ -171,13 +188,24 @@ export default class Keyboard extends BaseGroup {
      */
     toggleKeyPressed(key, velocity) {
         if (velocity === 0) {
+            TonePlayback.noteOff(key.notation, key.midichannel, 1/8);
+            var channelindex = this._midichannels.indexOf(key.midichannel);
+            this._midichannels.splice(channelindex, 1);
             clearTimeout(this._inactivityTimer);
             key.object.rotation.set(key.originalRotation.x, key.originalRotation.y, key.originalRotation.z);
             key.currentRotation = 0;
+            key.midichannel = -1;
             key.down = false;
         } else {
+            this._midichannels = this._midichannels.sort();
+            var midichannel = this._midichannels[this._midichannels.length-1] + 1;
+            if (!midichannel) {
+                midichannel = this._midiChannelStartIndex;
+            }
+            TonePlayback.noteOn(TonePlayback.PIANO, key.notation, midichannel);
             key.currentRotation = velocity * Math.PI/16;
             key.object.rotateX(key.currentRotation);
+            key.midichannel = midichannel;
             key.down = true;
         }
     }
@@ -284,5 +312,15 @@ export default class Keyboard extends BaseGroup {
             }
         }
         return keys;
+    }
+
+    /**
+     * on song data
+     * @param data
+     */
+    onSongData(data) {
+        var notation = Note.MIDItoNotation(data.note);
+        var key = this.findKeyObjectsForNotation(notation);
+        this.toggleKeyPressed(key[0], data.velocity / 127);
     }
 }

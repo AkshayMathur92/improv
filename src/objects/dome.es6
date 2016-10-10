@@ -1,5 +1,6 @@
 import BaseGroup from '../../node_modules/trivr/src/basegroup.es6';
 import Style from '../themeing/style.es6';
+import TonePlayback from '../toneplayback.es6';
 
 export default class Dome extends BaseGroup {
     /**
@@ -11,6 +12,17 @@ export default class Dome extends BaseGroup {
         var mesh = new THREE.Mesh(this.createGeometry(), this.createMaterial());
         mesh.position.z = 5;
         this.add(mesh, 'dome');
+    }
+
+    /**
+     * on render
+     * @param scenecollection
+     * @param mycollection
+     */
+    onRender(scenecollection, mycollection) {
+        if (TonePlayback.isPlaying) {
+            this.group.rotation.y += Math.PI / 1024;
+        }
     }
 
     /**

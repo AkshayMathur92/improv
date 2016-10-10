@@ -160,10 +160,6 @@ var _createClass = function () {
     };
 }();
 
-var _input = require('./input.es6');
-
-var _input2 = _interopRequireDefault(_input);
-
 var _metronome = require('./objects/metronome.es6');
 
 var _metronome2 = _interopRequireDefault(_metronome);
@@ -184,6 +180,10 @@ var _lighting = require('./objects/lighting.es6');
 
 var _lighting2 = _interopRequireDefault(_lighting);
 
+var _toneplayback = require('./toneplayback.es6');
+
+var _toneplayback2 = _interopRequireDefault(_toneplayback);
+
 function _interopRequireDefault(obj) {
     return obj && obj.__esModule ? obj : { default: obj };
 }
@@ -196,13 +196,39 @@ function _classCallCheck(instance, Constructor) {
 
 var Improv = function () {
     function Improv(scene, params) {
+        var _this = this;
+
         _classCallCheck(this, Improv);
 
         scene.onCreate = this.create;
-        scene.addObjects([new _metronome2.default(), new _floatingparticles2.default(), new _dome2.default(), new _keyboard2.default({ assets: './assets/models/keyboardkey.json', input: params.input }), new _lighting2.default()]);
+        scene.addObjects([new _metronome2.default(), new _floatingparticles2.default(), new _dome2.default(), new _keyboard2.default({
+            assets: './assets/models/keyboardkey.json',
+            input: params.input }), new _lighting2.default()]);
+
+        _toneplayback2.default.loadInstrument(_toneplayback2.default.PIANO, './assets/audio/soundfont/');
+        _toneplayback2.default.loadInstrument(_toneplayback2.default.SYNTHDRUM, './assets/audio/soundfont/');
+
+        document.addEventListener('keydown', function (event) {
+            return _this.onKeyDown(event);
+        });
+        // TonePlayback.play('./assets/audio/Bonnie_Tyler_-_Total_Eclipse_of_the_Heart.mid');
     }
 
     _createClass(Improv, [{
+        key: 'onKeyDown',
+        value: function onKeyDown(event) {
+            if (event.code === 'Space') {
+                switch (_toneplayback2.default.playerState) {
+                    case 'ready':
+                        _toneplayback2.default.play('./assets/audio/Bonnie_Tyler_-_Total_Eclipse_of_the_Heart.mid');break;
+                    case 'playing':
+                        _toneplayback2.default.pause();break;
+                    case 'paused':
+                        _toneplayback2.default.resume();break;
+                }
+            }
+        }
+    }, {
         key: 'create',
         value: function create(scene, custom) {
             scene.renderer.gammaInput = true;
@@ -218,7 +244,7 @@ var Improv = function () {
 
 exports.default = Improv;
 
-},{"./input.es6":3,"./objects/dome.es6":7,"./objects/floatingparticles.es6":8,"./objects/keyboard.es6":9,"./objects/lighting.es6":10,"./objects/metronome.es6":11}],3:[function(require,module,exports){
+},{"./objects/dome.es6":7,"./objects/floatingparticles.es6":8,"./objects/keyboard.es6":9,"./objects/lighting.es6":10,"./objects/metronome.es6":11,"./toneplayback.es6":16}],3:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -613,7 +639,6 @@ var _class = function () {
             }
 
             this.decayHistoricalScores();
-            console.log(this._keySignatureScoreHistory);
             return this.applyCurrentScoreToHistory(scores);
         }
 
@@ -715,6 +740,48 @@ exports.default = {
      * @type {Array.<string>}
      **/
     correctedNotations: ["C", "C", "F", "F"],
+
+    /**
+     * translate index from MIDI to notation
+     * @param index
+     * @constructor
+     */
+    MIDItoNotation: function MIDItoNotation(index) {
+        var position = index % this.sharpNotations.length;
+        return this.sharpNotations[position];
+    },
+
+    /**
+     * translate notation and octave to MIDI index
+     * @param notation
+     */
+    notationToMIDI: function notationToMIDI(notation) {
+        var ntObj = this.parseNotation(notation);
+        var ntindx = this.sharpNotations.indexOf(ntObj.notation);
+        if (ntindx === -1) {
+            ntindx = this.flatNotations.indexOf(ntObj.notation);
+        }
+        return ntObj.octave * this.sharpNotations.length + ntindx;
+    },
+
+    /**
+     * parse notation to notation and octave
+     * @param notation
+     */
+    parseNotation: function parseNotation(notation) {
+        var note = {};
+        // only supports one digit octaves (if thats even a real issue)
+        var octave = notation.charAt(notation.length - 1);
+        if (parseInt(octave) == octave) {
+            note.octave = octave;
+            note.notation = notation.substr(0, notation.length - 2);
+        } else {
+            note.octave = 4; // default
+            note.notation = notation;
+        }
+
+        return note;
+    },
 
     /**
      * turn a notation into a frequency
@@ -859,6 +926,10 @@ var _style = require('../themeing/style.es6');
 
 var _style2 = _interopRequireDefault(_style);
 
+var _toneplayback = require('../toneplayback.es6');
+
+var _toneplayback2 = _interopRequireDefault(_toneplayback);
+
 function _interopRequireDefault(obj) {
     return obj && obj.__esModule ? obj : { default: obj };
 }
@@ -905,6 +976,20 @@ var Dome = function (_BaseGroup) {
         }
 
         /**
+         * on render
+         * @param scenecollection
+         * @param mycollection
+         */
+
+    }, {
+        key: 'onRender',
+        value: function onRender(scenecollection, mycollection) {
+            if (_toneplayback2.default.isPlaying) {
+                this.group.rotation.y += Math.PI / 1024;
+            }
+        }
+
+        /**
          * create globe geometry
          * @returns {THREE.IcosahedronGeometry}
          */
@@ -940,7 +1025,7 @@ var Dome = function (_BaseGroup) {
 
 exports.default = Dome;
 
-},{"../../node_modules/trivr/src/basegroup.es6":1,"../themeing/style.es6":15}],8:[function(require,module,exports){
+},{"../../node_modules/trivr/src/basegroup.es6":1,"../themeing/style.es6":15,"../toneplayback.es6":16}],8:[function(require,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
@@ -1100,6 +1185,10 @@ var _utils = require('../utils.es6');
 
 var _utils2 = _interopRequireDefault(_utils);
 
+var _toneplayback = require('../toneplayback.es6');
+
+var _toneplayback2 = _interopRequireDefault(_toneplayback);
+
 function _interopRequireDefault(obj) {
     return obj && obj.__esModule ? obj : { default: obj };
 }
@@ -1151,6 +1240,20 @@ var Keyboard = function (_BaseGroup) {
             this._keys = [];
 
             /**
+             * midi channels used
+             * @type {Array}
+             * @private
+             */
+            this._midichannels = [];
+
+            /**
+             * starting index at which point to allocate MIDI channels
+             * @type {number}
+             * @private
+             */
+            this._midiChannelStartIndex = 11;
+
+            /**
              * keyboard/key input
              * @type {$ES6_ANONYMOUS_CLASS$}
              * @private
@@ -1180,6 +1283,7 @@ var Keyboard = function (_BaseGroup) {
     }, {
         key: 'onCreate',
         value: function onCreate(scene, custom) {}
+        //TonePlayback.addEventListener('mididata', data => this.onSongData(data));
 
         /**
          * on render scene
@@ -1320,13 +1424,24 @@ var Keyboard = function (_BaseGroup) {
         key: 'toggleKeyPressed',
         value: function toggleKeyPressed(key, velocity) {
             if (velocity === 0) {
+                _toneplayback2.default.noteOff(key.notation, key.midichannel, 1 / 8);
+                var channelindex = this._midichannels.indexOf(key.midichannel);
+                this._midichannels.splice(channelindex, 1);
                 clearTimeout(this._inactivityTimer);
                 key.object.rotation.set(key.originalRotation.x, key.originalRotation.y, key.originalRotation.z);
                 key.currentRotation = 0;
+                key.midichannel = -1;
                 key.down = false;
             } else {
+                this._midichannels = this._midichannels.sort();
+                var midichannel = this._midichannels[this._midichannels.length - 1] + 1;
+                if (!midichannel) {
+                    midichannel = this._midiChannelStartIndex;
+                }
+                _toneplayback2.default.noteOn(_toneplayback2.default.PIANO, key.notation, midichannel);
                 key.currentRotation = velocity * Math.PI / 16;
                 key.object.rotateX(key.currentRotation);
+                key.midichannel = midichannel;
                 key.down = true;
             }
         }
@@ -1452,6 +1567,19 @@ var Keyboard = function (_BaseGroup) {
             }
             return keys;
         }
+
+        /**
+         * on song data
+         * @param data
+         */
+
+    }, {
+        key: 'onSongData',
+        value: function onSongData(data) {
+            var notation = _note2.default.MIDItoNotation(data.note);
+            var key = this.findKeyObjectsForNotation(notation);
+            this.toggleKeyPressed(key[0], data.velocity / 127);
+        }
     }]);
 
     return Keyboard;
@@ -1459,7 +1587,7 @@ var Keyboard = function (_BaseGroup) {
 
 exports.default = Keyboard;
 
-},{"../../node_modules/trivr/src/basegroup.es6":1,"../input.es6":3,"../musictheory/note.es6":6,"../themeing/style.es6":15,"../utils.es6":16}],10:[function(require,module,exports){
+},{"../../node_modules/trivr/src/basegroup.es6":1,"../input.es6":3,"../musictheory/note.es6":6,"../themeing/style.es6":15,"../toneplayback.es6":16,"../utils.es6":17}],10:[function(require,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
@@ -1583,6 +1711,10 @@ var _utils = require('../utils.es6');
 
 var _utils2 = _interopRequireDefault(_utils);
 
+var _toneplayback = require('../toneplayback.es6');
+
+var _toneplayback2 = _interopRequireDefault(_toneplayback);
+
 function _interopRequireDefault(obj) {
     return obj && obj.__esModule ? obj : { default: obj };
 }
@@ -1629,7 +1761,7 @@ var Metronome = function (_BaseGroup) {
              * @type {Tone}
              * @private
              */
-            this._synth = new Tone.DrumSynth().toMaster();
+            //this._synth = new Tone.DrumSynth().toMaster();
 
             /**
              * tween targets
@@ -1643,10 +1775,10 @@ var Metronome = function (_BaseGroup) {
     }, {
         key: 'onCreate',
         value: function onCreate(scenecollection, mycollection) {
-            this.addHammer('right', Math.PI / 64, Math.PI * 2, 'C4');
-            //this.addHammer('left', Math.PI/128, 0, 'A4');
-            this.addHammer('up', Math.PI / 64, Math.PI / 2, 'G5');
-            this.addHammer('down', Math.PI / 64, 0, 'F3');
+            //this.addHammer('right', Math.PI/64, Math.PI * 2, 'C4');
+            //this.addHammer('left', Math.PI/128, Math.PI/4, 'A4');
+            this.addHammer('up', Math.PI / 32, Math.PI / 2, 'G4');
+            this.addHammer('down', Math.PI / 32, 0, 'F3');
             this.addDrum();
         }
 
@@ -1712,7 +1844,8 @@ var Metronome = function (_BaseGroup) {
         value: function triggerDrum(hammer) {
             var _this2 = this;
 
-            this._synth.triggerAttackRelease(hammer.note, "16n");
+            _toneplayback2.default.noteOn(_toneplayback2.default.SYNTHDRUM, hammer.note, 10, 1 / 8);
+            // this._synth.triggerAttackRelease(hammer.note, "16n");
             hammer.animatingGlow = true;
             var startcolor = _utils2.default.decToRGB(_style2.default.metronome.hammer.color, 100);
             var endcolor = _utils2.default.decToRGB(_style2.default.metronome.hammer.hitcolor, 100);
@@ -1860,7 +1993,7 @@ var Metronome = function (_BaseGroup) {
 
 exports.default = Metronome;
 
-},{"../../node_modules/trivr/src/basegroup.es6":1,"../themeing/style.es6":15,"../utils.es6":16,"./../shaders.es6":13}],12:[function(require,module,exports){
+},{"../../node_modules/trivr/src/basegroup.es6":1,"../themeing/style.es6":15,"../toneplayback.es6":16,"../utils.es6":17,"./../shaders.es6":13}],12:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -2138,6 +2271,241 @@ exports.default = {
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
+
+var _note = require('./musictheory/note.es6');
+
+var _note2 = _interopRequireDefault(_note);
+
+function _interopRequireDefault(obj) {
+    return obj && obj.__esModule ? obj : { default: obj };
+}
+
+exports.default = {
+    SYNTHDRUM: 'synth_drum',
+    PIANO: 'acoustic_grand_piano',
+
+    playerState: 'ready',
+
+    /**
+     * instruments loaded
+     */
+    _instrumentsLoaded: [],
+
+    /**
+     * play midi file
+     * @param uri of midie file
+     */
+    play: function play(uri) {
+        var _this = this;
+
+        this.playerState = 'loading';
+        MIDI.Player.timeWarp = 1; // speed the song is played back
+        MIDI.Player.loadFile(uri, function () {
+            return _this.onLoaded();
+        }, function () {
+            return _this.onProgress();
+        }, function (err) {
+            return _this.onError(err);
+        });
+    },
+
+    /**
+     * pause playing midi file
+     */
+    pause: function pause() {
+        this.playerState = 'paused';
+        MIDI.Player.pause();
+    },
+
+    /**
+     * resume playing midi file
+     */
+    resume: function resume() {
+        this.playerState = 'playing';
+        MIDI.Player.resume();
+    },
+
+    /**
+     * check if instrument is loaded
+     * @param instrument
+     * @returns {boolean}
+     */
+    isInstrumentLoaded: function isInstrumentLoaded(instrument) {
+        if (this._instrumentsLoaded.indexOf(instrument) !== -1) {
+            return true;
+        } else {
+            return false;
+        }
+    },
+
+    /**
+     * load instrument
+     * @param instrument
+     */
+    loadInstrument: function loadInstrument(instrument, path) {
+        var _this2 = this;
+
+        MIDI.loadPlugin({
+            soundfontUrl: path,
+            instrument: instrument,
+            onprogress: function onprogress(state, progress, instrument) {
+                return _this2.onInstrumentLoadProgress(state, progress, instrument);
+            },
+            onsuccess: function onsuccess(event) {
+                return _this2.onInstrumentLoaded(event);
+            },
+            onerror: function onerror(err) {
+                return _this2.onInstrumentLoadedError(err);
+            }
+        });
+    },
+
+    /**
+     * play a tone
+     * @param instrument
+     * @param notation
+     * @param duration
+     */
+    playTone: function playTone(instrument, notation, midichannel, duration) {
+        if (!this.isInstrumentLoaded(instrument)) {
+            return;
+        }
+
+        MIDI.programChange(0, MIDI.GM.byName[instrument].number);
+        var delay = 0; // play one note every quarter second
+        var note = _note2.default.notationToMIDI(notation); // the MIDI note
+        var velocity = 127; // how hard the note hits
+        // play the note
+        MIDI.setVolume(0, 127);
+        MIDI.noteOn(0, note, velocity, delay);
+
+        if (duration) {
+            MIDI.noteOff(0, note, delay + duration);
+        }
+    },
+
+    /**
+     * note on
+     * @param instrument
+     * @param notation
+     * @param midichannel
+     */
+    noteOn: function noteOn(instrument, notation, midichannel, duration) {
+        if (!this.isInstrumentLoaded(instrument)) {
+            return;
+        }
+        var note = _note2.default.notationToMIDI(notation);
+        MIDI.programChange(midichannel, MIDI.GM.byName[instrument].number);
+        var velocity = 127; // how hard the note hits
+        MIDI.setVolume(0, 127);
+        MIDI.noteOn(midichannel, note, velocity, 0);
+
+        if (duration) {
+            MIDI.noteOff(midichannel, note, duration);
+        }
+    },
+
+    /**
+     * note off
+     * @param notation
+     * @param midichannel
+     * @param delay
+     */
+    noteOff: function noteOff(notation, midichannel, delay) {
+        if (!delay) {
+            delay = 0;
+        }
+        var note = _note2.default.notationToMIDI(notation);
+        MIDI.noteOff(midichannel, note, delay);
+    },
+
+    /**
+     * add event listener
+     * @param eventtype
+     * @param callback
+     */
+    addEventListener: function addEventListener(eventtype, callback) {
+        if (!this._listeners) {
+            this._listeners = [];
+        }
+        this._listeners.push({ type: eventtype, callback: callback });
+    },
+
+    /**
+     * on instrument loaded
+     * @param event
+     */
+    onInstrumentLoaded: function onInstrumentLoaded() {},
+
+    /**
+     * on instrument load progress
+     * @param state
+     * @param progress
+     * @param instrument
+     */
+    onInstrumentLoadProgress: function onInstrumentLoadProgress(state, progress, instrument) {
+        if (instrument && progress === 1) {
+            console.log(instrument + ' loaded');
+            this._instrumentsLoaded.push(instrument);
+        }
+    },
+
+    /**
+     * on instrument loaded error
+     * @param err
+     */
+    onInstrumentLoadedError: function onInstrumentLoadedError(err) {
+        console.log('Instrument loading error', err);
+    },
+    onLoaded: function onLoaded() {
+        var _this3 = this;
+
+        MIDI.programChange(0, MIDI.GM.byName[this.PIANO].number);
+        MIDI.Player.start();
+        this.playerState = 'playing';
+        this.isPlaying = true;
+        MIDI.Player.addListener(function (data) {
+            return _this3.onMIDIData(data);
+        });
+    },
+    onProgress: function onProgress() {
+        console.log('progress');
+    },
+    onError: function onError(err) {
+        console.log('error', err);
+    },
+
+    /**
+     * on midi data callback
+     * @param data
+     */
+    onMIDIData: function onMIDIData(data) {
+        if (this._listeners) {
+            for (var c = 0; c < this._listeners.length; c++) {
+                if (this._listeners[c].type === 'mididata') {
+                    console.log(data);
+                    this._listeners[c].callback.apply(this, [{ note: data.note - 21, velocity: data.velocity }]);
+                }
+            }
+        }
+    }
+};
+
+},{"./musictheory/note.es6":6}],17:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _note = require('./musictheory/note.es6');
+
+var _note2 = _interopRequireDefault(_note);
+
+function _interopRequireDefault(obj) {
+    return obj && obj.__esModule ? obj : { default: obj };
+}
+
 exports.default = {
     /**
      * apply n number of properties to an object
@@ -2177,7 +2545,7 @@ exports.default = {
     }
 };
 
-},{}]},{},[2])(2)
+},{"./musictheory/note.es6":6}]},{},[2])(2)
 });
 
 

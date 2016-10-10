@@ -39,6 +39,48 @@ export default {
      correctedNotations: ["C", "C", "F", "F"],
 
     /**
+     * translate index from MIDI to notation
+     * @param index
+     * @constructor
+     */
+    MIDItoNotation(index) {
+        var position = index % this.sharpNotations.length;
+        return this.sharpNotations[position];
+    },
+
+    /**
+     * translate notation and octave to MIDI index
+     * @param notation
+     */
+    notationToMIDI(notation) {
+        var ntObj = this.parseNotation(notation);
+        var ntindx = this.sharpNotations.indexOf(ntObj.notation);
+        if (ntindx === -1) {
+            ntindx = this.flatNotations.indexOf(ntObj.notation);
+        }
+        return ntObj.octave * this.sharpNotations.length + ntindx;
+    },
+
+    /**
+     * parse notation to notation and octave
+     * @param notation
+     */
+    parseNotation(notation) {
+        var note = {};
+        // only supports one digit octaves (if thats even a real issue)
+        var octave = notation.charAt(notation.length-1);
+        if (parseInt(octave) == octave) {
+            note.octave = octave;
+            note.notation = notation.substr(0, notation.length-2);
+        } else {
+            note.octave = 4; // default
+            note.notation = notation;
+        }
+
+        return note;
+    },
+
+    /**
      * turn a notation into a frequency
      * @static
      * @param {string} notation

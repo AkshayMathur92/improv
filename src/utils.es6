@@ -1,3 +1,5 @@
+import Note from './musictheory/note.es6';
+
 export default {
     /**
      * apply n number of properties to an object

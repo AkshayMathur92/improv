@@ -2,6 +2,7 @@ import Shaders from './../shaders.es6';
 import BaseGroup from '../../node_modules/trivr/src/basegroup.es6';
 import Style from '../themeing/style.es6';
 import Utils from '../utils.es6';
+import TonePlayback from '../toneplayback.es6';
 
 export default class Metronome extends BaseGroup {
     onInitialize() {
@@ -17,7 +18,7 @@ export default class Metronome extends BaseGroup {
          * @type {Tone}
          * @private
          */
-        this._synth = new Tone.DrumSynth().toMaster();
+        //this._synth = new Tone.DrumSynth().toMaster();
 
         /**
          * tween targets
@@ -30,10 +31,10 @@ export default class Metronome extends BaseGroup {
     }
 
     onCreate(scenecollection, mycollection) {
-        this.addHammer('right', Math.PI/64, Math.PI * 2, 'C4');
-        //this.addHammer('left', Math.PI/128, 0, 'A4');
-        this.addHammer('up', Math.PI/64, Math.PI/2, 'G5');
-        this.addHammer('down', Math.PI/64, 0, 'F3');
+        //this.addHammer('right', Math.PI/64, Math.PI * 2, 'C4');
+        //this.addHammer('left', Math.PI/128, Math.PI/4, 'A4');
+        this.addHammer('up', Math.PI/32, Math.PI/2, 'G4');
+        this.addHammer('down', Math.PI/32, 0, 'F3');
         this.addDrum();
     }
 
@@ -91,7 +92,8 @@ export default class Metronome extends BaseGroup {
      * @param hammer
      */
     triggerDrum(hammer) {
-        this._synth.triggerAttackRelease(hammer.note, "16n");
+        TonePlayback.noteOn(TonePlayback.SYNTHDRUM, hammer.note, 10, 1/8);
+       // this._synth.triggerAttackRelease(hammer.note, "16n");
         hammer.animatingGlow = true;
         var startcolor = Utils.decToRGB(Style.metronome.hammer.color, 100);
         var endcolor = Utils.decToRGB(Style.metronome.hammer.hitcolor, 100);
