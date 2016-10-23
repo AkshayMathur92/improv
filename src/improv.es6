@@ -6,20 +6,46 @@ import Lighting from './objects/lighting.es6';
 import TonePlayback from './toneplayback.es6';
 
 export default class Improv {
-    constructor(scene, params) {
-        scene.onCreate = this.create;
-        scene.addObjects([
+    constructor(scene, configURI) {
+        this._scene = scene;
+        this._request = new XMLHttpRequest();
+        this._request.onreadystatechange = () => this.onConfigLoaded();
+        this._request.open('GET', configURI);
+        this._request.send();
+    }
+
+    /**
+     * on config loaded
+     */
+    onConfigLoaded() {
+        if (this._request.readyState === XMLHttpRequest.DONE) {
+            if (this._request.status === 200) {
+                var config = JSON.parse(this._request.responseText);
+                this.setup(config);
+            } else {
+                console.log('There was a problem with the request.');
+            }
+        }
+    }
+    /**
+     * setup app
+     * @param config
+     */
+    setup(config) {
+        this._scene.onCreate = this.create;
+        this._scene.addObjects([
             new Metronome(),
             new FloatingParticles(),
             new Dome(),
             new Keyboard({
+                shape: config.keyboard.shape,
                 assets: './assets/models/keyboardkey.json',
-                input: params.input }),
+                input: config.input }),
             new Lighting() ]);
 
-        TonePlayback.loadInstrument(TonePlayback.PIANO, './assets/audio/soundfont/');
-        TonePlayback.loadInstrument(TonePlayback.SYNTHDRUM, './assets/audio/soundfont/');
-
+        for (var c = 0; c < config.sound.soundfonts.length; c++) {
+            TonePlayback.loadInstrument(config.sound.soundfonts[c], config.sound.soundfontlocation);
+        }
         document.addEventListener('keydown', event => this.onKeyDown(event) );
     }
 

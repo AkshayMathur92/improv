@@ -1,0 +1,10 @@
+{
+  "input": "QWERTY",
+  "keyboard": {
+    "shape": "circular"
+  },
+  "sound": {
+    "soundfontlocation": "./assets/audio/soundfont/",
+    "soundfonts": [ "acoustic_grand_piano", "synth_drum"]
+  }
+}

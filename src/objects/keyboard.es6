@@ -53,6 +53,12 @@ export default class Keyboard extends BaseGroup {
         * @type {String}
         */
        this.currentKeySignature = null;
+
+       /**
+        * keyboard shape
+        * @type {String}
+        */
+       this.keyboardShape = params.shape ? params.shape : 'circular';
    }
     /**
      * on create scene (or earliest possible opportunity)
@@ -105,10 +111,10 @@ export default class Keyboard extends BaseGroup {
     setupScene(geometry, material) {
         var counter = 0;
         for (var c = 0; c < 14; c++) {
-            this.addKey(- c * Math.PI * 2 / 14, true, String.fromCharCode('A'.charCodeAt(0) + counter), geometry, material);
+            this.addKey(c, true, String.fromCharCode('A'.charCodeAt(0) + counter), geometry, material);
 
             if (counter !== 1 && counter !== 4) {
-                this.addKey(-(c * Math.PI * 2 / 14 + Math.PI/14), false, String.fromCharCode('A'.charCodeAt(0) + counter) + '#', geometry, material);
+                this.addKey(c, false, String.fromCharCode('A'.charCodeAt(0) + counter) + '#', geometry, material);
             }
 
             counter ++;
@@ -116,7 +122,6 @@ export default class Keyboard extends BaseGroup {
                 counter = 0;
             }
         }
-        this.group.rotation.z = Math.PI;
         this.group.position.z = -400;
         this.group.scale.set(10, 10, 10);
     }
@@ -271,11 +276,14 @@ export default class Keyboard extends BaseGroup {
 
     /**
      * create and add a key
-     * @param {Number} rotation
+     * @param {Number} index
      * @param {Boolean} white
+     * @param {String} notation
+     * @param {THREE.Geometry} geometry
+     * @param {THREE.Material} material
      */
-    addKey(rotation, white, notation, geometry, material) {
-        var key, color;
+    addKey(index, white, notation, geometry, material) {
+        var key, color, rotation;
         if (white) {
             color = 'white';
             key = this.createWhiteKey(geometry, material);
@@ -283,7 +291,7 @@ export default class Keyboard extends BaseGroup {
             color = 'black';
             key = this.createBlackKey(geometry, material);
         }
-        key.rotation.z = rotation;
+        this.applyKeyTransform(key, index, white);
         this._keys.push({
             type: color,
             object: key,
@@ -295,6 +303,34 @@ export default class Keyboard extends BaseGroup {
                 z: key.rotation.z }
         });
         this.add(key,'key_' + notation);
+    }
+
+    /**
+     * apply key transform
+     * @param {THREE.Mesh} keymesh
+     * @param {Number} keyindex
+     * @param {Boolean} whitekey
+     */
+    applyKeyTransform(keymesh, keyindex, whitekey) {
+        switch (this.keyboardShape) {
+            case 'circular':
+                if (whitekey) {
+                    keymesh.rotation.z = -keyindex * Math.PI * 2 / 14;
+                } else {
+                    keymesh.rotation.z = -(keyindex * Math.PI * 2 / 14 + Math.PI/14)
+                }
+                break;
+
+            case 'linear':
+                var translate = 0;
+                if (!whitekey) {
+                    translate = 2;
+                }
+
+                keymesh.rotation.z = Math.PI;
+                keymesh.position.x = -25 + keyindex * 4 + translate;
+                break;
+        }
     }
 
 

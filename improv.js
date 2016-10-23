@@ -195,26 +195,66 @@ function _classCallCheck(instance, Constructor) {
 }
 
 var Improv = function () {
-    function Improv(scene, params) {
+    function Improv(scene, configURI) {
         var _this = this;
 
         _classCallCheck(this, Improv);
 
-        scene.onCreate = this.create;
-        scene.addObjects([new _metronome2.default(), new _floatingparticles2.default(), new _dome2.default(), new _keyboard2.default({
-            assets: './assets/models/keyboardkey.json',
-            input: params.input }), new _lighting2.default()]);
-
-        _toneplayback2.default.loadInstrument(_toneplayback2.default.PIANO, './assets/audio/soundfont/');
-        _toneplayback2.default.loadInstrument(_toneplayback2.default.SYNTHDRUM, './assets/audio/soundfont/');
-
-        document.addEventListener('keydown', function (event) {
-            return _this.onKeyDown(event);
-        });
-        // TonePlayback.play('./assets/audio/Bonnie_Tyler_-_Total_Eclipse_of_the_Heart.mid');
+        this._scene = scene;
+        this._request = new XMLHttpRequest();
+        this._request.onreadystatechange = function () {
+            return _this.onConfigLoaded();
+        };
+        this._request.open('GET', configURI);
+        this._request.send();
     }
 
+    /**
+     * on config loaded
+     */
+
     _createClass(Improv, [{
+        key: 'onConfigLoaded',
+        value: function onConfigLoaded() {
+            if (this._request.readyState === XMLHttpRequest.DONE) {
+                if (this._request.status === 200) {
+                    var config = JSON.parse(this._request.responseText);
+                    this.setup(config);
+                } else {
+                    console.log('There was a problem with the request.');
+                }
+            }
+        }
+        /**
+         * setup app
+         * @param config
+         */
+
+    }, {
+        key: 'setup',
+        value: function setup(config) {
+            var _this2 = this;
+
+            this._scene.onCreate = this.create;
+            this._scene.addObjects([new _metronome2.default(), new _floatingparticles2.default(), new _dome2.default(), new _keyboard2.default({
+                shape: config.keyboard.shape,
+                assets: './assets/models/keyboardkey.json',
+                input: config.input }), new _lighting2.default()]);
+
+            for (var c = 0; c < config.sound.soundfonts.length; c++) {
+                _toneplayback2.default.loadInstrument(config.sound.soundfonts[c], config.sound.soundfontlocation);
+            }
+            document.addEventListener('keydown', function (event) {
+                return _this2.onKeyDown(event);
+            });
+        }
+
+        /**
+         * on keydown
+         * @param event
+         */
+
+    }, {
         key: 'onKeyDown',
         value: function onKeyDown(event) {
             if (event.code === 'Space') {
@@ -1273,6 +1313,12 @@ var Keyboard = function (_BaseGroup) {
              * @type {String}
              */
             this.currentKeySignature = null;
+
+            /**
+             * keyboard shape
+             * @type {String}
+             */
+            this.keyboardShape = params.shape ? params.shape : 'circular';
         }
         /**
          * on create scene (or earliest possible opportunity)
@@ -1329,10 +1375,10 @@ var Keyboard = function (_BaseGroup) {
         value: function setupScene(geometry, material) {
             var counter = 0;
             for (var c = 0; c < 14; c++) {
-                this.addKey(-c * Math.PI * 2 / 14, true, String.fromCharCode('A'.charCodeAt(0) + counter), geometry, material);
+                this.addKey(c, true, String.fromCharCode('A'.charCodeAt(0) + counter), geometry, material);
 
                 if (counter !== 1 && counter !== 4) {
-                    this.addKey(-(c * Math.PI * 2 / 14 + Math.PI / 14), false, String.fromCharCode('A'.charCodeAt(0) + counter) + '#', geometry, material);
+                    this.addKey(c, false, String.fromCharCode('A'.charCodeAt(0) + counter) + '#', geometry, material);
                 }
 
                 counter++;
@@ -1340,7 +1386,6 @@ var Keyboard = function (_BaseGroup) {
                     counter = 0;
                 }
             }
-            this.group.rotation.z = Math.PI;
             this.group.position.z = -400;
             this.group.scale.set(10, 10, 10);
         }
@@ -1520,14 +1565,17 @@ var Keyboard = function (_BaseGroup) {
 
         /**
          * create and add a key
-         * @param {Number} rotation
+         * @param {Number} index
          * @param {Boolean} white
+         * @param {String} notation
+         * @param {THREE.Geometry} geometry
+         * @param {THREE.Material} material
          */
 
     }, {
         key: 'addKey',
-        value: function addKey(rotation, white, notation, geometry, material) {
-            var key, color;
+        value: function addKey(index, white, notation, geometry, material) {
+            var key, color, rotation;
             if (white) {
                 color = 'white';
                 key = this.createWhiteKey(geometry, material);
@@ -1535,7 +1583,7 @@ var Keyboard = function (_BaseGroup) {
                 color = 'black';
                 key = this.createBlackKey(geometry, material);
             }
-            key.rotation.z = rotation;
+            this.applyKeyTransform(key, index, white);
             this._keys.push({
                 type: color,
                 object: key,
@@ -1547,6 +1595,37 @@ var Keyboard = function (_BaseGroup) {
                     z: key.rotation.z }
             });
             this.add(key, 'key_' + notation);
+        }
+
+        /**
+         * apply key transform
+         * @param {THREE.Mesh} keymesh
+         * @param {Number} keyindex
+         * @param {Boolean} whitekey
+         */
+
+    }, {
+        key: 'applyKeyTransform',
+        value: function applyKeyTransform(keymesh, keyindex, whitekey) {
+            switch (this.keyboardShape) {
+                case 'circular':
+                    if (whitekey) {
+                        keymesh.rotation.z = -keyindex * Math.PI * 2 / 14;
+                    } else {
+                        keymesh.rotation.z = -(keyindex * Math.PI * 2 / 14 + Math.PI / 14);
+                    }
+                    break;
+
+                case 'linear':
+                    var translate = 0;
+                    if (!whitekey) {
+                        translate = 2;
+                    }
+
+                    keymesh.rotation.z = Math.PI;
+                    keymesh.position.x = -25 + keyindex * 4 + translate;
+                    break;
+            }
         }
 
         /**
