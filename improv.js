@@ -309,6 +309,10 @@ var _midikeymanager = require('./midikeymanager.es6');
 
 var _midikeymanager2 = _interopRequireDefault(_midikeymanager);
 
+var _websocketmidikeymanager = require('./websocketmidikeymanager.es6');
+
+var _websocketmidikeymanager2 = _interopRequireDefault(_websocketmidikeymanager);
+
 var _keysignatureprediction = require('./musictheory/keysignatureprediction.es6');
 
 var _keysignatureprediction2 = _interopRequireDefault(_keysignatureprediction);
@@ -334,12 +338,18 @@ var _class = function () {
          * @type {$ES6_ANONYMOUS_CLASS$}
          * @private
          */
+
+        console.log('type', type);
         if (type === 'QWERTY') {
             this._keymanager = new _qwertykeymanager2.default(function (changed) {
                 return _this.onKeyChange(changed);
             });
         } else if (type === 'MIDI') {
             this._keymanager = new _midikeymanager2.default(function (changed) {
+                return _this.onKeyChange(changed);
+            });
+        } else if (type === 'WEBSOCKETMIDI') {
+            this._keymanager = new _websocketmidikeymanager2.default(function (changed) {
                 return _this.onKeyChange(changed);
             });
         }
@@ -386,7 +396,7 @@ var _class = function () {
 
 exports.default = _class;
 
-},{"./midikeymanager.es6":4,"./musictheory/keysignatureprediction.es6":5,"./qwertykeymanager.es6":12}],4:[function(require,module,exports){
+},{"./midikeymanager.es6":4,"./musictheory/keysignatureprediction.es6":5,"./qwertykeymanager.es6":12,"./websocketmidikeymanager.es6":18}],4:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -419,8 +429,6 @@ function _classCallCheck(instance, Constructor) {
 
 var _class = function () {
     function _class(cb) {
-        var _this = this;
-
         _classCallCheck(this, _class);
 
         /**
@@ -443,24 +451,36 @@ var _class = function () {
          */
         this._mapping = _note2.default.sharpNotations.concat(_note2.default.sharpNotations).concat(_note2.default.sharpNotations).concat(_note2.default.sharpNotations).concat(_note2.default.sharpNotations).concat(_note2.default.sharpNotations).concat(_note2.default.sharpNotations).concat(_note2.default.sharpNotations).concat(_note2.default.sharpNotations).concat(_note2.default.sharpNotations).splice(3, _note2.default.sharpNotations.length * 10);
 
-        // request MIDI access
-        if (navigator.requestMIDIAccess) {
-            navigator.requestMIDIAccess().then(function (event) {
-                return _this.onMIDISuccess(event);
-            }, function (event) {
-                return _this.onMIDIFailure(event);
-            });
-        } else {
-            console.log("No MIDI support in your browser.");
-        }
+        this.initializeDevice();
     }
 
     /**
-     * on midi connection success
-     * @param midi
+     * initialize midi device
      */
 
     _createClass(_class, [{
+        key: "initializeDevice",
+        value: function initializeDevice() {
+            var _this = this;
+
+            // request MIDI access
+            if (navigator.requestMIDIAccess) {
+                navigator.requestMIDIAccess().then(function (event) {
+                    return _this.onMIDISuccess(event);
+                }, function (event) {
+                    return _this.onMIDIFailure(event);
+                });
+            } else {
+                console.log("No MIDI support in your browser.");
+            }
+        }
+
+        /**
+         * on midi connection success
+         * @param midi
+         */
+
+    }, {
         key: "onMIDISuccess",
         value: function onMIDISuccess(midi) {
             var _this2 = this;
@@ -513,6 +533,7 @@ var _class = function () {
     }, {
         key: "onMIDIMessage",
         value: function onMIDIMessage(msg) {
+            console.log(msg);
             var cmd = msg.data[0] >> 4;
             var channel = msg.data[0] & 0xf;
             var noteNumber = msg.data[1];
@@ -998,7 +1019,7 @@ var Dome = function (_BaseGroup) {
     function Dome() {
         _classCallCheck(this, Dome);
 
-        return _possibleConstructorReturn(this, Object.getPrototypeOf(Dome).apply(this, arguments));
+        return _possibleConstructorReturn(this, (Dome.__proto__ || Object.getPrototypeOf(Dome)).apply(this, arguments));
     }
 
     _createClass(Dome, [{
@@ -1120,7 +1141,7 @@ var FloatingParticles = function (_BaseGroup) {
     function FloatingParticles() {
         _classCallCheck(this, FloatingParticles);
 
-        return _possibleConstructorReturn(this, Object.getPrototypeOf(FloatingParticles).apply(this, arguments));
+        return _possibleConstructorReturn(this, (FloatingParticles.__proto__ || Object.getPrototypeOf(FloatingParticles)).apply(this, arguments));
     }
 
     _createClass(FloatingParticles, [{
@@ -1257,7 +1278,7 @@ var Keyboard = function (_BaseGroup) {
     function Keyboard() {
         _classCallCheck(this, Keyboard);
 
-        return _possibleConstructorReturn(this, Object.getPrototypeOf(Keyboard).apply(this, arguments));
+        return _possibleConstructorReturn(this, (Keyboard.__proto__ || Object.getPrototypeOf(Keyboard)).apply(this, arguments));
     }
 
     _createClass(Keyboard, [{
@@ -1330,6 +1351,7 @@ var Keyboard = function (_BaseGroup) {
         key: 'onCreate',
         value: function onCreate(scene, custom) {}
         //TonePlayback.addEventListener('mididata', data => this.onSongData(data));
+
 
         /**
          * on render scene
@@ -1721,7 +1743,7 @@ var Lighting = function (_BaseGroup) {
     function Lighting() {
         _classCallCheck(this, Lighting);
 
-        return _possibleConstructorReturn(this, Object.getPrototypeOf(Lighting).apply(this, arguments));
+        return _possibleConstructorReturn(this, (Lighting.__proto__ || Object.getPrototypeOf(Lighting)).apply(this, arguments));
     }
 
     _createClass(Lighting, [{
@@ -1822,7 +1844,7 @@ var Metronome = function (_BaseGroup) {
     function Metronome() {
         _classCallCheck(this, Metronome);
 
-        return _possibleConstructorReturn(this, Object.getPrototypeOf(Metronome).apply(this, arguments));
+        return _possibleConstructorReturn(this, (Metronome.__proto__ || Object.getPrototypeOf(Metronome)).apply(this, arguments));
     }
 
     _createClass(Metronome, [{
@@ -2592,7 +2614,6 @@ exports.default = {
      * @param {Object} props
      * @param {String} namespace of property (prepend key name)
      */
-
     copyPropsTo: function copyPropsTo(object, props, namespace) {
         if (!namespace) {
             namespace = '';
@@ -2624,7 +2645,95 @@ exports.default = {
     }
 };
 
-},{"./musictheory/note.es6":6}]},{},[2])(2)
+},{"./musictheory/note.es6":6}],18:[function(require,module,exports){
+'use strict';
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _createClass = function () {
+    function defineProperties(target, props) {
+        for (var i = 0; i < props.length; i++) {
+            var descriptor = props[i];descriptor.enumerable = descriptor.enumerable || false;descriptor.configurable = true;if ("value" in descriptor) descriptor.writable = true;Object.defineProperty(target, descriptor.key, descriptor);
+        }
+    }return function (Constructor, protoProps, staticProps) {
+        if (protoProps) defineProperties(Constructor.prototype, protoProps);if (staticProps) defineProperties(Constructor, staticProps);return Constructor;
+    };
+}();
+
+var _midikeymanager = require('./midikeymanager.es6');
+
+var _midikeymanager2 = _interopRequireDefault(_midikeymanager);
+
+var _note = require('./musictheory/note.es6');
+
+var _note2 = _interopRequireDefault(_note);
+
+function _interopRequireDefault(obj) {
+    return obj && obj.__esModule ? obj : { default: obj };
+}
+
+function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+        throw new TypeError("Cannot call a class as a function");
+    }
+}
+
+function _possibleConstructorReturn(self, call) {
+    if (!self) {
+        throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+    }return call && ((typeof call === "undefined" ? "undefined" : _typeof(call)) === "object" || typeof call === "function") ? call : self;
+}
+
+function _inherits(subClass, superClass) {
+    if (typeof superClass !== "function" && superClass !== null) {
+        throw new TypeError("Super expression must either be null or a function, not " + (typeof superClass === "undefined" ? "undefined" : _typeof(superClass)));
+    }subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } });if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
+}
+
+var _class = function (_MidiKeyManager) {
+    _inherits(_class, _MidiKeyManager);
+
+    function _class() {
+        _classCallCheck(this, _class);
+
+        return _possibleConstructorReturn(this, (_class.__proto__ || Object.getPrototypeOf(_class)).apply(this, arguments));
+    }
+
+    _createClass(_class, [{
+        key: 'initializeDevice',
+
+        /**
+         * initialize midi device
+         */
+        value: function initializeDevice() {
+            var _this2 = this;
+
+            this.socket = new WebSocket('ws://localhost:8080');
+            this.socket.onerror = function (error) {
+                console.log('WebSocket Error ' + error);
+            };
+
+            this.socket.onmessage = function (e) {
+                var msg = JSON.parse(e.data);
+                _this2.onMIDIMessage(msg);
+            };
+
+            this.socket.onopen = function (e) {
+                _this2.socket.send('connect');
+            };
+        }
+    }]);
+
+    return _class;
+}(_midikeymanager2.default);
+
+exports.default = _class;
+
+},{"./midikeymanager.es6":4,"./musictheory/note.es6":6}]},{},[2])(2)
 });
 
 

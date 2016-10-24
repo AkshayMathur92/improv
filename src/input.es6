@@ -1,5 +1,6 @@
 import QWERTYKeyManager from './qwertykeymanager.es6';
 import MIDIKeyManager from './midikeymanager.es6';
+import WebSocketMIDIKeyManager from './websocketmidikeymanager.es6';
 import KeySignaturePrediction from './musictheory/keysignatureprediction.es6';
 
 export default class {
@@ -9,10 +10,14 @@ export default class {
          * @type {$ES6_ANONYMOUS_CLASS$}
          * @private
          */
+
+        console.log('type', type)
         if (type === 'QWERTY') {
             this._keymanager = new QWERTYKeyManager( changed => this.onKeyChange(changed));
         } else if (type === 'MIDI') {
             this._keymanager = new MIDIKeyManager( changed => this.onKeyChange(changed));
+        } else if (type === 'WEBSOCKETMIDI') {
+            this._keymanager = new WebSocketMIDIKeyManager( changed => this.onKeyChange(changed));
         }
 
         /**
