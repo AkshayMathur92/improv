@@ -31,23 +31,23 @@ gulp.task('libs', function() {
 
         // MIDIJS
         //				'./node_modules/midi/js/js/color/spaceW3.js', // optional
-        './node_modules/midi/js/midi/audioDetect.js',
-        './node_modules/midi/js/midi/gm.js',
-        './node_modules/midi/js/midi/loader.js',
-        './node_modules/midi/js/midi/player.js',
+        './node_modules/midijs/js/midi/audioDetect.js',
+        './node_modules/midijs/js/midi/gm.js',
+        './node_modules/midijs/js/midi/loader.js',
+        './node_modules/midijs/js/midi/player.js',
         './node_modules/midi/js/midi/plugin.audiotag.js',
-        './node_modules/midi/js/midi/plugin.webaudio.js',
-        './node_modules/midi/js/midi/plugin.webmidi.js',
+        './node_modules/midijs/js/midi/plugin.webaudio.js',
+        './node_modules/midijs/js/midi/plugin.webmidi.js',
 //				'./node_modules/midi/js/js/midi/synesthesia.js', // optional
-        './node_modules/midi/js/util/dom_request_xhr.js', // req when using XHR
-        './node_modules/midi/js/util/dom_request_script.js', // req otherwise
-        './node_modules/midi/js/widget/loader.js', // optional
-        './node_modules/midi/inc/shim/Base64.js',
-        './node_modules/midi/inc/shim/base64binary.js',
+        './node_modules/midijs/js/util/dom_request_xhr.js', // req when using XHR
+        './node_modules/midijs/js/util/dom_request_script.js', // req otherwise
+        './node_modules/midijs/js/widget/loader.js', // optional
+        './node_modules/midijs/inc/shim/Base64.js',
+        './node_modules/midijs/inc/shim/base64binary.js',
 
-        './node_modules/midi/inc/jasmid/replayer.js',
-        './node_modules/midi/inc/jasmid/midifile.js',
-        './node_modules/midi/inc/jasmid/stream.js'
+        './node_modules/midijs/inc/jasmid/replayer.js',
+        './node_modules/midijs/inc/jasmid/midifile.js',
+        './node_modules/midijs/inc/jasmid/stream.js'
     ])
         .pipe(concat('libs.js'))
         .pipe(gulp.dest('./'));

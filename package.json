@@ -2,11 +2,13 @@
   "name": "improv",
   "version": "0.0.1",
   "dependencies": {
-    "trivr": "git://github.com/creativecode-webcomponents/trivr.git",
-    "midijs": "https://github.com/mudcube/MIDI.js.git",
     "createjs-tweenjs": "^0.6.0",
+    "midi": "^0.9.5",
+    "midijs": "https://github.com/bengfarrell/MIDI.js.git",
     "tone": "^0.6.1",
-    "webcomponents.js": "^0.7.22"
+    "trivr": "git://github.com/creativecode-webcomponents/trivr.git",
+    "webcomponents.js": "^0.7.22",
+    "websockets": "^0.2.0"
   },
   "devDependencies": {
     "async": "^1.5.2",

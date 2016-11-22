@@ -31,6 +31,13 @@ export default class {
             .concat(Note.sharpNotations)
             .concat(Note.sharpNotations).splice(3, Note.sharpNotations.length *10);
 
+        this.initializeDevice();
+    }
+
+    /**
+     * initialize midi device
+     */
+    initializeDevice() {
         // request MIDI access
         if (navigator.requestMIDIAccess) {
             navigator.requestMIDIAccess().then(
@@ -65,6 +72,7 @@ export default class {
      * @param msg
      */
     onMIDIMessage(msg) {
+        console.log(msg)
         var cmd = msg.data[0] >> 4;
         var channel = msg.data[0] & 0xf;
         var noteNumber = msg.data[1];
