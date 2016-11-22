@@ -1,7 +1,7 @@
 import Note from './musictheory/note.es6';
 
 export default class {
-    constructor(cb) {
+    constructor(params, cb) {
         /**
          * event callback
          */

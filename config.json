@@ -1,10 +1,20 @@
 {
-  "input": "QWERTY",
   "keyboard": {
-    "shape": "circular"
+    "octaves": 5,
+    "startoctave": 2,
+    "assets": "./assets/models/keyboardkey.json"
+  },
+  "notationdisplay" : {
+    "octaves": 2,
+    "assets": "./assets/models/keyboardkey.json"
   },
   "sound": {
     "soundfontlocation": "./assets/audio/soundfont/",
     "soundfonts": [ "acoustic_grand_piano", "synth_drum"]
+  },
+
+  "input": {
+    "device": "QWERTY",
+    "startoctave": 0
   }
 }

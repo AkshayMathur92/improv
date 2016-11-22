@@ -150,23 +150,19 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _createClass = function () {
-    function defineProperties(target, props) {
-        for (var i = 0; i < props.length; i++) {
-            var descriptor = props[i];descriptor.enumerable = descriptor.enumerable || false;descriptor.configurable = true;if ("value" in descriptor) descriptor.writable = true;Object.defineProperty(target, descriptor.key, descriptor);
-        }
-    }return function (Constructor, protoProps, staticProps) {
-        if (protoProps) defineProperties(Constructor.prototype, protoProps);if (staticProps) defineProperties(Constructor, staticProps);return Constructor;
-    };
-}();
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 var _metronome = require('./objects/metronome.es6');
 
 var _metronome2 = _interopRequireDefault(_metronome);
 
-var _keyboard = require('./objects/keyboard.es6');
+var _circularkeyboard = require('./objects/keyboards/circularkeyboard.es6');
 
-var _keyboard2 = _interopRequireDefault(_keyboard);
+var _circularkeyboard2 = _interopRequireDefault(_circularkeyboard);
+
+var _traditionalkeyboard = require('./objects/keyboards/traditionalkeyboard.es6');
+
+var _traditionalkeyboard2 = _interopRequireDefault(_traditionalkeyboard);
 
 var _dome = require('./objects/dome.es6');
 
@@ -184,15 +180,13 @@ var _toneplayback = require('./toneplayback.es6');
 
 var _toneplayback2 = _interopRequireDefault(_toneplayback);
 
-function _interopRequireDefault(obj) {
-    return obj && obj.__esModule ? obj : { default: obj };
-}
+var _input = require('./input.es6');
 
-function _classCallCheck(instance, Constructor) {
-    if (!(instance instanceof Constructor)) {
-        throw new TypeError("Cannot call a class as a function");
-    }
-}
+var _input2 = _interopRequireDefault(_input);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var Improv = function () {
     function Improv(scene, configURI) {
@@ -210,10 +204,38 @@ var Improv = function () {
     }
 
     /**
-     * on config loaded
+     * on key change
+     * @param keys
      */
 
+
     _createClass(Improv, [{
+        key: 'onKeyInputChange',
+        value: function onKeyInputChange(event) {
+            this._keyboard.toggleKeyPressed({
+                notation: event.changed.notation,
+                octave: event.changed.octave,
+                velocity: event.changed.velocity });
+
+            //this._keyboard.toggleKeyPressed(key[octave], event.changed.velocity);
+            /*var key = this.findKeyObjectsForNotation(event.changed.notation);
+            var octave;
+            if (event.changed.octave / 2 === Math.floor(event.changed.octave / 2)) {
+               octave = 1;
+            } else {
+               octave = 0;
+            }
+             this.toggleKeyPressed(key[octave], event.changed.velocity);
+             if (event.predictedKey.length > 0 && event.predictedKey[0] !== this.currentKeySignature) {
+               this.onKeySignatureChange(event.predictedKey[0].key);
+            }*/
+        }
+
+        /**
+         * on config loaded
+         */
+
+    }, {
         key: 'onConfigLoaded',
         value: function onConfigLoaded() {
             if (this._request.readyState === XMLHttpRequest.DONE) {
@@ -228,6 +250,7 @@ var Improv = function () {
         /**
          * setup app
          * @param config
+         * @param config
          */
 
     }, {
@@ -236,10 +259,14 @@ var Improv = function () {
             var _this2 = this;
 
             this._scene.onCreate = this.create;
-            this._scene.addObjects([new _metronome2.default(), new _floatingparticles2.default(), new _dome2.default(), new _keyboard2.default({
-                shape: config.keyboard.shape,
-                assets: './assets/models/keyboardkey.json',
-                input: config.input }), new _lighting2.default()]);
+
+            this._input = new _input2.default(config.input, function (keys) {
+                return _this2.onKeyInputChange(keys);
+            });
+            this._keyboard = new _traditionalkeyboard2.default(config.keyboard);
+            this._hudKeyboard = new _circularkeyboard2.default(config.notationdisplay);
+
+            this._scene.addObjects([new _metronome2.default(), new _floatingparticles2.default(), new _dome2.default(), this._keyboard, this._hudKeyboard, new _lighting2.default()]);
 
             for (var c = 0; c < config.sound.soundfonts.length; c++) {
                 _toneplayback2.default.loadInstrument(config.sound.soundfonts[c], config.sound.soundfontlocation);
@@ -284,22 +311,14 @@ var Improv = function () {
 
 exports.default = Improv;
 
-},{"./objects/dome.es6":7,"./objects/floatingparticles.es6":8,"./objects/keyboard.es6":9,"./objects/lighting.es6":10,"./objects/metronome.es6":11,"./toneplayback.es6":16}],3:[function(require,module,exports){
+},{"./input.es6":3,"./objects/dome.es6":7,"./objects/floatingparticles.es6":8,"./objects/keyboards/circularkeyboard.es6":10,"./objects/keyboards/traditionalkeyboard.es6":11,"./objects/lighting.es6":12,"./objects/metronome.es6":13,"./toneplayback.es6":18}],3:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _createClass = function () {
-    function defineProperties(target, props) {
-        for (var i = 0; i < props.length; i++) {
-            var descriptor = props[i];descriptor.enumerable = descriptor.enumerable || false;descriptor.configurable = true;if ("value" in descriptor) descriptor.writable = true;Object.defineProperty(target, descriptor.key, descriptor);
-        }
-    }return function (Constructor, protoProps, staticProps) {
-        if (protoProps) defineProperties(Constructor.prototype, protoProps);if (staticProps) defineProperties(Constructor, staticProps);return Constructor;
-    };
-}();
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 var _qwertykeymanager = require('./qwertykeymanager.es6');
 
@@ -313,18 +332,12 @@ var _keysignatureprediction = require('./musictheory/keysignatureprediction.es6'
 
 var _keysignatureprediction2 = _interopRequireDefault(_keysignatureprediction);
 
-function _interopRequireDefault(obj) {
-    return obj && obj.__esModule ? obj : { default: obj };
-}
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-function _classCallCheck(instance, Constructor) {
-    if (!(instance instanceof Constructor)) {
-        throw new TypeError("Cannot call a class as a function");
-    }
-}
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var _class = function () {
-    function _class(type, cb) {
+    function _class(params, cb) {
         var _this = this;
 
         _classCallCheck(this, _class);
@@ -334,12 +347,12 @@ var _class = function () {
          * @type {$ES6_ANONYMOUS_CLASS$}
          * @private
          */
-        if (type === 'QWERTY') {
-            this._keymanager = new _qwertykeymanager2.default(function (changed) {
+        if (params.device === 'QWERTY') {
+            this._keymanager = new _qwertykeymanager2.default(params, function (changed) {
                 return _this.onKeyChange(changed);
             });
-        } else if (type === 'MIDI') {
-            this._keymanager = new _midikeymanager2.default(function (changed) {
+        } else if (params.device === 'MIDI') {
+            this._keymanager = new _midikeymanager2.default(params, function (changed) {
                 return _this.onKeyChange(changed);
             });
         }
@@ -360,6 +373,7 @@ var _class = function () {
     /**
      * clear prediction history
      */
+
 
     _createClass(_class, [{
         key: 'clearPredictionHistory',
@@ -386,39 +400,25 @@ var _class = function () {
 
 exports.default = _class;
 
-},{"./midikeymanager.es6":4,"./musictheory/keysignatureprediction.es6":5,"./qwertykeymanager.es6":12}],4:[function(require,module,exports){
+},{"./midikeymanager.es6":4,"./musictheory/keysignatureprediction.es6":5,"./qwertykeymanager.es6":14}],4:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _createClass = function () {
-    function defineProperties(target, props) {
-        for (var i = 0; i < props.length; i++) {
-            var descriptor = props[i];descriptor.enumerable = descriptor.enumerable || false;descriptor.configurable = true;if ("value" in descriptor) descriptor.writable = true;Object.defineProperty(target, descriptor.key, descriptor);
-        }
-    }return function (Constructor, protoProps, staticProps) {
-        if (protoProps) defineProperties(Constructor.prototype, protoProps);if (staticProps) defineProperties(Constructor, staticProps);return Constructor;
-    };
-}();
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 var _note = require("./musictheory/note.es6");
 
 var _note2 = _interopRequireDefault(_note);
 
-function _interopRequireDefault(obj) {
-    return obj && obj.__esModule ? obj : { default: obj };
-}
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-function _classCallCheck(instance, Constructor) {
-    if (!(instance instanceof Constructor)) {
-        throw new TypeError("Cannot call a class as a function");
-    }
-}
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var _class = function () {
-    function _class(cb) {
+    function _class(params, cb) {
         var _this = this;
 
         _classCallCheck(this, _class);
@@ -459,6 +459,7 @@ var _class = function () {
      * on midi connection success
      * @param midi
      */
+
 
     _createClass(_class, [{
         key: "onMIDISuccess",
@@ -601,29 +602,15 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _createClass = function () {
-    function defineProperties(target, props) {
-        for (var i = 0; i < props.length; i++) {
-            var descriptor = props[i];descriptor.enumerable = descriptor.enumerable || false;descriptor.configurable = true;if ("value" in descriptor) descriptor.writable = true;Object.defineProperty(target, descriptor.key, descriptor);
-        }
-    }return function (Constructor, protoProps, staticProps) {
-        if (protoProps) defineProperties(Constructor.prototype, protoProps);if (staticProps) defineProperties(Constructor, staticProps);return Constructor;
-    };
-}();
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 var _note = require('./note.es6');
 
 var _note2 = _interopRequireDefault(_note);
 
-function _interopRequireDefault(obj) {
-    return obj && obj.__esModule ? obj : { default: obj };
-}
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-function _classCallCheck(instance, Constructor) {
-    if (!(instance instanceof Constructor)) {
-        throw new TypeError("Cannot call a class as a function");
-    }
-}
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var _class = function () {
     function _class() {
@@ -650,6 +637,7 @@ var _class = function () {
      * update keys pressed
      * @param {Array} keys
      */
+
 
     _createClass(_class, [{
         key: 'update',
@@ -766,6 +754,36 @@ exports.default = {
     flatNotations: ["A", "Bb", "B", "C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab"],
 
     /**
+     * get notation index when notation is either flat or sharp
+     * @param notation
+     */
+    indexOfNotation: function indexOfNotation(notation) {
+        var index = this.sharpNotations.indexOf(notation);
+        if (index === -1) {
+            index = this.flatNotations.indexOf(notation);
+        }
+        return index;
+    },
+
+
+    /**
+     * get notation given an index
+     * @param index
+     */
+    notationAtIndex: function notationAtIndex(index, preferFlat) {
+        if (index >= this.sharpNotations.length) {
+            index = index - this.sharpNotations.length;
+        }
+
+        if (preferFlat) {
+            return this.flatNotations[index];
+        } else {
+            return this.sharpNotations[index];
+        }
+    },
+
+
+    /**
      * odd notations
      * @const
      * @static
@@ -791,6 +809,7 @@ exports.default = {
         return this.sharpNotations[position];
     },
 
+
     /**
      * translate notation and octave to MIDI index
      * @param notation
@@ -803,6 +822,7 @@ exports.default = {
         }
         return ntObj.octave * this.sharpNotations.length + ntindx;
     },
+
 
     /**
      * parse notation to notation and octave
@@ -822,6 +842,7 @@ exports.default = {
 
         return note;
     },
+
 
     /**
      * turn a notation into a frequency
@@ -856,6 +877,7 @@ exports.default = {
         }
         return freq;
     },
+
 
     /**
      * get notes in a specific key signature
@@ -927,6 +949,7 @@ exports.default = {
         return notesInKey;
     },
 
+
     /**
      * pregenerate a key signature lookup table for every note
      */
@@ -942,21 +965,11 @@ exports.default = {
 },{}],7:[function(require,module,exports){
 'use strict';
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
-
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _createClass = function () {
-    function defineProperties(target, props) {
-        for (var i = 0; i < props.length; i++) {
-            var descriptor = props[i];descriptor.enumerable = descriptor.enumerable || false;descriptor.configurable = true;if ("value" in descriptor) descriptor.writable = true;Object.defineProperty(target, descriptor.key, descriptor);
-        }
-    }return function (Constructor, protoProps, staticProps) {
-        if (protoProps) defineProperties(Constructor.prototype, protoProps);if (staticProps) defineProperties(Constructor, staticProps);return Constructor;
-    };
-}();
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 var _basegroup = require('../../node_modules/trivr/src/basegroup.es6');
 
@@ -970,27 +983,13 @@ var _toneplayback = require('../toneplayback.es6');
 
 var _toneplayback2 = _interopRequireDefault(_toneplayback);
 
-function _interopRequireDefault(obj) {
-    return obj && obj.__esModule ? obj : { default: obj };
-}
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-function _classCallCheck(instance, Constructor) {
-    if (!(instance instanceof Constructor)) {
-        throw new TypeError("Cannot call a class as a function");
-    }
-}
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-function _possibleConstructorReturn(self, call) {
-    if (!self) {
-        throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
-    }return call && ((typeof call === "undefined" ? "undefined" : _typeof(call)) === "object" || typeof call === "function") ? call : self;
-}
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 
-function _inherits(subClass, superClass) {
-    if (typeof superClass !== "function" && superClass !== null) {
-        throw new TypeError("Super expression must either be null or a function, not " + (typeof superClass === "undefined" ? "undefined" : _typeof(superClass)));
-    }subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } });if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
-}
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 var Dome = function (_BaseGroup) {
     _inherits(Dome, _BaseGroup);
@@ -1065,24 +1064,14 @@ var Dome = function (_BaseGroup) {
 
 exports.default = Dome;
 
-},{"../../node_modules/trivr/src/basegroup.es6":1,"../themeing/style.es6":15,"../toneplayback.es6":16}],8:[function(require,module,exports){
+},{"../../node_modules/trivr/src/basegroup.es6":1,"../themeing/style.es6":17,"../toneplayback.es6":18}],8:[function(require,module,exports){
 'use strict';
-
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _createClass = function () {
-    function defineProperties(target, props) {
-        for (var i = 0; i < props.length; i++) {
-            var descriptor = props[i];descriptor.enumerable = descriptor.enumerable || false;descriptor.configurable = true;if ("value" in descriptor) descriptor.writable = true;Object.defineProperty(target, descriptor.key, descriptor);
-        }
-    }return function (Constructor, protoProps, staticProps) {
-        if (protoProps) defineProperties(Constructor.prototype, protoProps);if (staticProps) defineProperties(Constructor, staticProps);return Constructor;
-    };
-}();
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 var _basegroup = require('../../node_modules/trivr/src/basegroup.es6');
 
@@ -1092,27 +1081,13 @@ var _style = require('../themeing/style.es6');
 
 var _style2 = _interopRequireDefault(_style);
 
-function _interopRequireDefault(obj) {
-    return obj && obj.__esModule ? obj : { default: obj };
-}
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-function _classCallCheck(instance, Constructor) {
-    if (!(instance instanceof Constructor)) {
-        throw new TypeError("Cannot call a class as a function");
-    }
-}
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-function _possibleConstructorReturn(self, call) {
-    if (!self) {
-        throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
-    }return call && ((typeof call === "undefined" ? "undefined" : _typeof(call)) === "object" || typeof call === "function") ? call : self;
-}
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 
-function _inherits(subClass, superClass) {
-    if (typeof superClass !== "function" && superClass !== null) {
-        throw new TypeError("Super expression must either be null or a function, not " + (typeof superClass === "undefined" ? "undefined" : _typeof(superClass)));
-    }subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } });if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
-}
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 var FloatingParticles = function (_BaseGroup) {
     _inherits(FloatingParticles, _BaseGroup);
@@ -1186,84 +1161,86 @@ var FloatingParticles = function (_BaseGroup) {
 
 exports.default = FloatingParticles;
 
-},{"../../node_modules/trivr/src/basegroup.es6":1,"../themeing/style.es6":15}],9:[function(require,module,exports){
+},{"../../node_modules/trivr/src/basegroup.es6":1,"../themeing/style.es6":17}],9:[function(require,module,exports){
 'use strict';
-
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _createClass = function () {
-    function defineProperties(target, props) {
-        for (var i = 0; i < props.length; i++) {
-            var descriptor = props[i];descriptor.enumerable = descriptor.enumerable || false;descriptor.configurable = true;if ("value" in descriptor) descriptor.writable = true;Object.defineProperty(target, descriptor.key, descriptor);
-        }
-    }return function (Constructor, protoProps, staticProps) {
-        if (protoProps) defineProperties(Constructor.prototype, protoProps);if (staticProps) defineProperties(Constructor, staticProps);return Constructor;
-    };
-}();
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _basegroup = require('../../node_modules/trivr/src/basegroup.es6');
+var _basegroup = require('../../../node_modules/trivr/src/basegroup.es6');
 
 var _basegroup2 = _interopRequireDefault(_basegroup);
 
-var _input = require('../input.es6');
+var _input = require('../../input.es6');
 
 var _input2 = _interopRequireDefault(_input);
 
-var _note = require('../musictheory/note.es6');
+var _note = require('../../musictheory/note.es6');
 
 var _note2 = _interopRequireDefault(_note);
 
-var _style = require('../themeing/style.es6');
+var _style = require('../../themeing/style.es6');
 
 var _style2 = _interopRequireDefault(_style);
 
-var _utils = require('../utils.es6');
+var _utils = require('../../utils.es6');
 
 var _utils2 = _interopRequireDefault(_utils);
 
-var _toneplayback = require('../toneplayback.es6');
+var _toneplayback = require('../../toneplayback.es6');
 
 var _toneplayback2 = _interopRequireDefault(_toneplayback);
 
-function _interopRequireDefault(obj) {
-    return obj && obj.__esModule ? obj : { default: obj };
-}
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-function _classCallCheck(instance, Constructor) {
-    if (!(instance instanceof Constructor)) {
-        throw new TypeError("Cannot call a class as a function");
-    }
-}
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-function _possibleConstructorReturn(self, call) {
-    if (!self) {
-        throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
-    }return call && ((typeof call === "undefined" ? "undefined" : _typeof(call)) === "object" || typeof call === "function") ? call : self;
-}
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 
-function _inherits(subClass, superClass) {
-    if (typeof superClass !== "function" && superClass !== null) {
-        throw new TypeError("Super expression must either be null or a function, not " + (typeof superClass === "undefined" ? "undefined" : _typeof(superClass)));
-    }subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } });if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
-}
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var Keyboard = function (_BaseGroup) {
-    _inherits(Keyboard, _BaseGroup);
+var BaseKeyboard = function (_BaseGroup) {
+    _inherits(BaseKeyboard, _BaseGroup);
 
-    function Keyboard() {
-        _classCallCheck(this, Keyboard);
+    function BaseKeyboard() {
+        _classCallCheck(this, BaseKeyboard);
 
-        return _possibleConstructorReturn(this, Object.getPrototypeOf(Keyboard).apply(this, arguments));
+        return _possibleConstructorReturn(this, Object.getPrototypeOf(BaseKeyboard).apply(this, arguments));
     }
 
-    _createClass(Keyboard, [{
+    _createClass(BaseKeyboard, [{
         key: 'onInitialize',
         value: function onInitialize(params) {
-            var _this2 = this;
+            /**
+             * how much rotation occurs on keypress
+             * @type {number}
+             * @private
+             */
+            this._rotationOnPress = Math.PI / 16;
+
+            /**
+             * number of octaves
+             * @type {number}
+             * @private
+             */
+            this._numOctaves = params.octaves ? params.octaves : 2;
+
+            /**
+             * starting octave (to better match with MIDI input)
+             * @type {number}
+             * @private
+             */
+            this._startingOctave = params.startoctave ? params.startoctave : 0;
+
+            /**
+             * starting note on keyboard
+             * @type {string}
+             * @private
+             */
+            this._startingNote = 'C';
 
             /**
              * inactivity timer for suggestions
@@ -1298,27 +1275,19 @@ var Keyboard = function (_BaseGroup) {
              * @type {$ES6_ANONYMOUS_CLASS$}
              * @private
              */
-            this._input = new _input2.default(params.input, function (keys) {
-                return _this2.onKeyInputChange(keys);
-            });
+            //this._input = new Input(params.input, (keys) => this.onKeyInputChange(keys) );
 
             /**
              * suggested keys from key signature prediction
              * @type {Array}
              */
-            this.suggestedKeys = [];
+            //this.suggestedKeys = [];
 
             /**
              * current key signature
              * @type {String}
              */
-            this.currentKeySignature = null;
-
-            /**
-             * keyboard shape
-             * @type {String}
-             */
-            this.keyboardShape = params.shape ? params.shape : 'circular';
+            //this.currentKeySignature = null;
         }
         /**
          * on create scene (or earliest possible opportunity)
@@ -1330,6 +1299,7 @@ var Keyboard = function (_BaseGroup) {
         key: 'onCreate',
         value: function onCreate(scene, custom) {}
         //TonePlayback.addEventListener('mididata', data => this.onSongData(data));
+
 
         /**
          * on render scene
@@ -1367,36 +1337,34 @@ var Keyboard = function (_BaseGroup) {
     }, {
         key: 'setupScene',
 
+
         /**
          * dynamically generate circle of keys
          * @param geometry
          * @param material
          */
         value: function setupScene(geometry, material) {
-            var counter = 0;
-            for (var c = 0; c < 14; c++) {
-                this.addKey(c, true, String.fromCharCode('A'.charCodeAt(0) + counter), geometry, material);
-
-                if (counter !== 1 && counter !== 4) {
-                    this.addKey(c, false, String.fromCharCode('A'.charCodeAt(0) + counter) + '#', geometry, material);
-                }
-
-                counter++;
-                if (counter >= 7) {
-                    counter = 0;
+            var startOffset = _note2.default.indexOfNotation(this._startingNote);
+            var ntindex = 0;
+            var transformPosition = 0;
+            for (var c = 0; c < this._numOctaves; c++) {
+                for (var d = 0; d < _note2.default.sharpNotations.length; d++) {
+                    var note = _note2.default.notationAtIndex(d + startOffset);
+                    transformPosition = this.addKey(transformPosition, note.indexOf('#') === -1, note, c, geometry, material);
+                    ntindex++;
                 }
             }
-            this.group.position.z = -400;
-            this.group.scale.set(10, 10, 10);
+
+            return transformPosition;
         }
 
         /**
          * on inactivity (fade away keys and clear key sig)
          */
-
+        ///onInactive() {
     }, {
-        key: 'onInactive',
-        value: function onInactive() {
+        key: 'resetKeys',
+        value: function resetKeys() {
             for (var c = 0; c < this._keys.length; c++) {
                 if (this._keys[c].suggested) {
                     var suggestionType = this._keys[c].suggested;
@@ -1407,7 +1375,7 @@ var Keyboard = function (_BaseGroup) {
                     var target = _utils2.default.copyPropsTo({}, _utils2.default.decToRGB(_style2.default.keys.normal[this._keys[c].type].color, 100), 'emissive');
                     _utils2.default.copyPropsTo(target, _utils2.default.decToRGB(_style2.default.keys.normal[this._keys[c].type].emissive, 100), 'color');
 
-                    this._input.clearPredictionHistory();
+                    //this._input.clearPredictionHistory();
                     createjs.Tween.get(this._keys[c].colortween).to(target, 2000).wait(100) // wait a few ticks, or the render cycle won't pick up the changes with the flag
                     .call(function () {
                         this.animating = false;
@@ -1420,10 +1388,7 @@ var Keyboard = function (_BaseGroup) {
          * on key change
          * @param keys
          */
-
-    }, {
-        key: 'onKeyInputChange',
-        value: function onKeyInputChange(event) {
+        /*onKeyInputChange(event) {
             var key = this.findKeyObjectsForNotation(event.changed.notation);
             var octave;
             if (event.changed.octave / 2 === Math.floor(event.changed.octave / 2)) {
@@ -1431,63 +1396,59 @@ var Keyboard = function (_BaseGroup) {
             } else {
                 octave = 0;
             }
-
-            this.toggleKeyPressed(key[octave], event.changed.velocity);
-
-            if (event.predictedKey.length > 0 && event.predictedKey[0] !== this.currentKeySignature) {
+             this.toggleKeyPressed(key[octave], event.changed.velocity);
+             if (event.predictedKey.length > 0 && event.predictedKey[0] !== this.currentKeySignature) {
                 this.onKeySignatureChange(event.predictedKey[0].key);
             }
-        }
+        }*/
 
         /**
          * handler when key signature changes
          * @param keysig
          */
-
-    }, {
-        key: 'onKeySignatureChange',
-        value: function onKeySignatureChange(keysig) {
+        /*onKeySignatureChange(keysig) {
             var c;
             for (c = 0; c < this.suggestedKeys.length; c++) {
                 this.toggleKeySuggestion(this.suggestedKeys[c], false);
             }
             this.currentKeySignature = keysig;
-            this.suggestedKeys = _note2.default.keys[keysig];
-
-            for (c = 0; c < this.suggestedKeys.length; c++) {
+            this.suggestedKeys = Note.keys[keysig];
+             for (c = 0; c < this.suggestedKeys.length; c++) {
                 this.toggleKeySuggestion(this.suggestedKeys[c], true, c);
             }
-        }
+        }*/
 
         /**
          * toggle key pressed
          * @param key
-         * @param velocity
          */
 
     }, {
         key: 'toggleKeyPressed',
-        value: function toggleKeyPressed(key, velocity) {
-            if (velocity === 0) {
-                _toneplayback2.default.noteOff(key.notation, key.midichannel, 1 / 8);
-                var channelindex = this._midichannels.indexOf(key.midichannel);
-                this._midichannels.splice(channelindex, 1);
-                clearTimeout(this._inactivityTimer);
-                key.object.rotation.set(key.originalRotation.x, key.originalRotation.y, key.originalRotation.z);
-                key.currentRotation = 0;
-                key.midichannel = -1;
-                key.down = false;
-            } else {
-                this._midichannels = this._midichannels.sort();
-                var midichannel = this._midichannels[this._midichannels.length - 1] + 1;
-                if (!midichannel) {
-                    midichannel = this._midiChannelStartIndex;
+        value: function toggleKeyPressed(k) {
+            var key = this.findKeyObjectForNotation(k.notation, k.octave);
+            if (key) {
+                if (k.velocity === 0) {
+                    _toneplayback2.default.noteOff(key.notation, key.midichannel, 1 / 8);
+                    var channelindex = this._midichannels.indexOf(key.midichannel);
+                    this._midichannels.splice(channelindex, 1);
+                    clearTimeout(this._inactivityTimer);
+                    key.object.rotation.set(key.originalRotation.x, key.originalRotation.y, key.originalRotation.z);
+                    key.currentRotation = 0;
+                    key.midichannel = -1;
+                    key.down = false;
+                } else {
+                    this._midichannels = this._midichannels.sort();
+                    var midichannel = this._midichannels[this._midichannels.length - 1] + 1;
+                    if (!midichannel) {
+                        midichannel = this._midiChannelStartIndex;
+                    }
+                    _toneplayback2.default.noteOn(_toneplayback2.default.PIANO, key.notation, midichannel);
+                    key.currentRotation = k.velocity * this._rotationOnPress;
+                    key.object.rotateX(key.currentRotation);
+                    key.midichannel = midichannel;
+                    key.down = true;
                 }
-                _toneplayback2.default.noteOn(_toneplayback2.default.PIANO, key.notation, midichannel);
-                key.currentRotation = velocity * Math.PI / 16;
-                key.object.rotateX(key.currentRotation);
-                key.midichannel = midichannel;
-                key.down = true;
             }
         }
 
@@ -1501,14 +1462,14 @@ var Keyboard = function (_BaseGroup) {
     }, {
         key: 'toggleKeySuggestion',
         value: function toggleKeySuggestion(notation, toggle, index) {
-            var _this3 = this;
+            var _this2 = this;
 
             var keys = this.findKeyObjectsForNotation(notation);
             for (var c = 0; c < keys.length; c++) {
                 if (toggle) {
                     clearTimeout(this._inactivityTimer);
                     this._inactivityTimer = setTimeout(function () {
-                        return _this3.onInactive();
+                        return _this2.onInactive();
                     }, 5000);
                     var clr;
                     if (index === 0 || index === 2 || index === 4 || index === 6) {
@@ -1565,16 +1526,18 @@ var Keyboard = function (_BaseGroup) {
 
         /**
          * create and add a key
-         * @param {Number} index
+         * @param {Number} transformPosition
          * @param {Boolean} white
          * @param {String} notation
+         * @param {Number} octave
          * @param {THREE.Geometry} geometry
          * @param {THREE.Material} material
+         * @return {Number} transform position
          */
 
     }, {
         key: 'addKey',
-        value: function addKey(index, white, notation, geometry, material) {
+        value: function addKey(transformPosition, white, notation, octave, geometry, material) {
             var key, color, rotation;
             if (white) {
                 color = 'white';
@@ -1583,10 +1546,11 @@ var Keyboard = function (_BaseGroup) {
                 color = 'black';
                 key = this.createBlackKey(geometry, material);
             }
-            this.applyKeyTransform(key, index, white);
+            transformPosition = this.applyKeyTransform(key, transformPosition, white);
             this._keys.push({
                 type: color,
                 object: key,
+                octave: octave + this._startingOctave,
                 colortween: {},
                 notation: notation,
                 originalRotation: {
@@ -1595,42 +1559,22 @@ var Keyboard = function (_BaseGroup) {
                     z: key.rotation.z }
             });
             this.add(key, 'key_' + notation);
+            return transformPosition;
         }
 
         /**
          * apply key transform
          * @param {THREE.Mesh} keymesh
-         * @param {Number} keyindex
+         * @param {Number} transformPosition
          * @param {Boolean} whitekey
          */
 
     }, {
         key: 'applyKeyTransform',
-        value: function applyKeyTransform(keymesh, keyindex, whitekey) {
-            switch (this.keyboardShape) {
-                case 'circular':
-                    if (whitekey) {
-                        keymesh.rotation.z = -keyindex * Math.PI * 2 / 14;
-                    } else {
-                        keymesh.rotation.z = -(keyindex * Math.PI * 2 / 14 + Math.PI / 14);
-                    }
-                    break;
-
-                case 'linear':
-                    var translate = 0;
-                    if (!whitekey) {
-                        translate = 2;
-                    }
-
-                    keymesh.rotation.z = Math.PI;
-                    keymesh.position.x = -25 + keyindex * 4 + translate;
-                    break;
-            }
-        }
+        value: function applyKeyTransform(keymesh, transformPosition, whitekey) {}
 
         /**
          * find the key for a specific notation
-         * todo: choose most appropriate octave
          * @param notation
          * @returns {Array}
          */
@@ -1638,13 +1582,27 @@ var Keyboard = function (_BaseGroup) {
     }, {
         key: 'findKeyObjectsForNotation',
         value: function findKeyObjectsForNotation(notation) {
-            var keys = []; // multiple keys for multiple octaves (just 2 right now)
+            var keys = [];
             for (var c = 0; c < this._keys.length; c++) {
                 if (this._keys[c].notation === notation) {
                     keys.push(this._keys[c]);
                 }
             }
             return keys;
+        }
+
+        /**
+         * find specific key object for notation and octave
+         * @param notation
+         * @param octave
+         */
+
+    }, {
+        key: 'findKeyObjectForNotation',
+        value: function findKeyObjectForNotation(notation, octave) {
+            var notationOffset = _note2.default.indexOfNotation(this._startingNote);
+            var indx = octave * _note2.default.sharpNotations.length + _note2.default.sharpNotations.indexOf(notation) - notationOffset;
+            return this._keys[indx];
         }
 
         /**
@@ -1661,29 +1619,226 @@ var Keyboard = function (_BaseGroup) {
         }
     }]);
 
-    return Keyboard;
+    return BaseKeyboard;
 }(_basegroup2.default);
 
-exports.default = Keyboard;
+exports.default = BaseKeyboard;
 
-},{"../../node_modules/trivr/src/basegroup.es6":1,"../input.es6":3,"../musictheory/note.es6":6,"../themeing/style.es6":15,"../toneplayback.es6":16,"../utils.es6":17}],10:[function(require,module,exports){
+},{"../../../node_modules/trivr/src/basegroup.es6":1,"../../input.es6":3,"../../musictheory/note.es6":6,"../../themeing/style.es6":17,"../../toneplayback.es6":18,"../../utils.es6":19}],10:[function(require,module,exports){
 'use strict';
-
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _createClass = function () {
-    function defineProperties(target, props) {
-        for (var i = 0; i < props.length; i++) {
-            var descriptor = props[i];descriptor.enumerable = descriptor.enumerable || false;descriptor.configurable = true;if ("value" in descriptor) descriptor.writable = true;Object.defineProperty(target, descriptor.key, descriptor);
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
+
+var _basekeyboard = require('./basekeyboard.es6');
+
+var _basekeyboard2 = _interopRequireDefault(_basekeyboard);
+
+var _input = require('../../input.es6');
+
+var _input2 = _interopRequireDefault(_input);
+
+var _note = require('../../musictheory/note.es6');
+
+var _note2 = _interopRequireDefault(_note);
+
+var _style = require('../../themeing/style.es6');
+
+var _style2 = _interopRequireDefault(_style);
+
+var _utils = require('../../utils.es6');
+
+var _utils2 = _interopRequireDefault(_utils);
+
+var _toneplayback = require('../../toneplayback.es6');
+
+var _toneplayback2 = _interopRequireDefault(_toneplayback);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var CircularKeyboard = function (_BaseKeyboard) {
+    _inherits(CircularKeyboard, _BaseKeyboard);
+
+    function CircularKeyboard() {
+        _classCallCheck(this, CircularKeyboard);
+
+        return _possibleConstructorReturn(this, Object.getPrototypeOf(CircularKeyboard).apply(this, arguments));
+    }
+
+    _createClass(CircularKeyboard, [{
+        key: 'applyKeyTransform',
+
+        /**
+         * apply key transform
+         * @param {THREE.Mesh} keymesh
+         * @param {Number} position in keyboard
+         * @param {Number} keyindex
+         * @param {Boolean} whitekey
+         */
+        value: function applyKeyTransform(keymesh, transformPosition, whitekey) {
+            var rotate = 0;
+            var extraRotate = 0;
+            if (whitekey) {
+                rotate = Math.PI * 2 / 14;
+            } else {
+                extraRotate = Math.PI * 2 / 28;
+            }
+            keymesh.rotation.z = transformPosition + rotate + extraRotate;
+
+            return transformPosition + rotate;
         }
-    }return function (Constructor, protoProps, staticProps) {
-        if (protoProps) defineProperties(Constructor.prototype, protoProps);if (staticProps) defineProperties(Constructor, staticProps);return Constructor;
-    };
-}();
+
+        /**
+         * setup scene
+         * @param geometry
+         * @param material
+         */
+
+    }, {
+        key: 'setupScene',
+        value: function setupScene(geometry, material) {
+            _get(Object.getPrototypeOf(CircularKeyboard.prototype), 'setupScene', this).call(this, geometry, material);
+            this.group.position.z = -400;
+            this.group.scale.set(10, 10, 10);
+        }
+    }]);
+
+    return CircularKeyboard;
+}(_basekeyboard2.default);
+
+exports.default = CircularKeyboard;
+
+},{"../../input.es6":3,"../../musictheory/note.es6":6,"../../themeing/style.es6":17,"../../toneplayback.es6":18,"../../utils.es6":19,"./basekeyboard.es6":9}],11:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
+
+var _basekeyboard = require('./basekeyboard.es6');
+
+var _basekeyboard2 = _interopRequireDefault(_basekeyboard);
+
+var _input = require('../../input.es6');
+
+var _input2 = _interopRequireDefault(_input);
+
+var _note = require('../../musictheory/note.es6');
+
+var _note2 = _interopRequireDefault(_note);
+
+var _style = require('../../themeing/style.es6');
+
+var _style2 = _interopRequireDefault(_style);
+
+var _utils = require('../../utils.es6');
+
+var _utils2 = _interopRequireDefault(_utils);
+
+var _toneplayback = require('../../toneplayback.es6');
+
+var _toneplayback2 = _interopRequireDefault(_toneplayback);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var TraditionalKeyboard = function (_BaseKeyboard) {
+    _inherits(TraditionalKeyboard, _BaseKeyboard);
+
+    function TraditionalKeyboard() {
+        _classCallCheck(this, TraditionalKeyboard);
+
+        return _possibleConstructorReturn(this, Object.getPrototypeOf(TraditionalKeyboard).apply(this, arguments));
+    }
+
+    _createClass(TraditionalKeyboard, [{
+        key: 'onInitialize',
+        value: function onInitialize(params) {
+            _get(Object.getPrototypeOf(TraditionalKeyboard.prototype), 'onInitialize', this).call(this, params);
+
+            /**
+             * how much rotation occurs on keypress
+             * @type {number}
+             * @private
+             */
+            this._rotationOnPress = Math.PI / 64;
+        }
+
+        /**
+         * apply key transform
+         * @param {THREE.Mesh} keymesh
+         * @param {Number} position in keyboard
+         * @param {Boolean} whitekey
+         * @return {Number} current position
+         */
+
+    }, {
+        key: 'applyKeyTransform',
+        value: function applyKeyTransform(keymesh, transformPosition, whitekey) {
+            var translate = 2;
+            if (!whitekey) {
+                keymesh.position.y = 5;
+                keymesh.position.z = 1;
+                keymesh.position.x = transformPosition + 1;
+                translate = 0;
+            } else {
+                keymesh.position.x = transformPosition + 2;
+            }
+            keymesh.rotation.x = 0;
+            return transformPosition + translate;
+        }
+
+        /**
+         * setup scene
+         * @param geometry
+         * @param material
+         */
+
+    }, {
+        key: 'setupScene',
+        value: function setupScene(geometry, material) {
+            var lastTransformPosition = _get(Object.getPrototypeOf(TraditionalKeyboard.prototype), 'setupScene', this).call(this, geometry, material);
+            this.group.position.x = -lastTransformPosition / 2 * 10;
+            this.group.position.z = -200;
+            this.group.position.y = -200;
+            this.group.rotation.x = -Math.PI / 2;
+            this.group.scale.set(10, 10, 10);
+        }
+    }]);
+
+    return TraditionalKeyboard;
+}(_basekeyboard2.default);
+
+exports.default = TraditionalKeyboard;
+
+},{"../../input.es6":3,"../../musictheory/note.es6":6,"../../themeing/style.es6":17,"../../toneplayback.es6":18,"../../utils.es6":19,"./basekeyboard.es6":9}],12:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 var _basegroup = require('../../node_modules/trivr/src/basegroup.es6');
 
@@ -1693,27 +1848,13 @@ var _style = require('../themeing/style.es6');
 
 var _style2 = _interopRequireDefault(_style);
 
-function _interopRequireDefault(obj) {
-    return obj && obj.__esModule ? obj : { default: obj };
-}
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-function _classCallCheck(instance, Constructor) {
-    if (!(instance instanceof Constructor)) {
-        throw new TypeError("Cannot call a class as a function");
-    }
-}
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-function _possibleConstructorReturn(self, call) {
-    if (!self) {
-        throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
-    }return call && ((typeof call === "undefined" ? "undefined" : _typeof(call)) === "object" || typeof call === "function") ? call : self;
-}
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 
-function _inherits(subClass, superClass) {
-    if (typeof superClass !== "function" && superClass !== null) {
-        throw new TypeError("Super expression must either be null or a function, not " + (typeof superClass === "undefined" ? "undefined" : _typeof(superClass)));
-    }subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } });if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
-}
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 var Lighting = function (_BaseGroup) {
     _inherits(Lighting, _BaseGroup);
@@ -1755,24 +1896,14 @@ var Lighting = function (_BaseGroup) {
 
 exports.default = Lighting;
 
-},{"../../node_modules/trivr/src/basegroup.es6":1,"../themeing/style.es6":15}],11:[function(require,module,exports){
+},{"../../node_modules/trivr/src/basegroup.es6":1,"../themeing/style.es6":17}],13:[function(require,module,exports){
 'use strict';
-
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _createClass = function () {
-    function defineProperties(target, props) {
-        for (var i = 0; i < props.length; i++) {
-            var descriptor = props[i];descriptor.enumerable = descriptor.enumerable || false;descriptor.configurable = true;if ("value" in descriptor) descriptor.writable = true;Object.defineProperty(target, descriptor.key, descriptor);
-        }
-    }return function (Constructor, protoProps, staticProps) {
-        if (protoProps) defineProperties(Constructor.prototype, protoProps);if (staticProps) defineProperties(Constructor, staticProps);return Constructor;
-    };
-}();
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 var _shaders = require('./../shaders.es6');
 
@@ -1794,27 +1925,13 @@ var _toneplayback = require('../toneplayback.es6');
 
 var _toneplayback2 = _interopRequireDefault(_toneplayback);
 
-function _interopRequireDefault(obj) {
-    return obj && obj.__esModule ? obj : { default: obj };
-}
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-function _classCallCheck(instance, Constructor) {
-    if (!(instance instanceof Constructor)) {
-        throw new TypeError("Cannot call a class as a function");
-    }
-}
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-function _possibleConstructorReturn(self, call) {
-    if (!self) {
-        throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
-    }return call && ((typeof call === "undefined" ? "undefined" : _typeof(call)) === "object" || typeof call === "function") ? call : self;
-}
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 
-function _inherits(subClass, superClass) {
-    if (typeof superClass !== "function" && superClass !== null) {
-        throw new TypeError("Super expression must either be null or a function, not " + (typeof superClass === "undefined" ? "undefined" : _typeof(superClass)));
-    }subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } });if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
-}
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 var Metronome = function (_BaseGroup) {
     _inherits(Metronome, _BaseGroup);
@@ -2072,39 +2189,25 @@ var Metronome = function (_BaseGroup) {
 
 exports.default = Metronome;
 
-},{"../../node_modules/trivr/src/basegroup.es6":1,"../themeing/style.es6":15,"../toneplayback.es6":16,"../utils.es6":17,"./../shaders.es6":13}],12:[function(require,module,exports){
+},{"../../node_modules/trivr/src/basegroup.es6":1,"../themeing/style.es6":17,"../toneplayback.es6":18,"../utils.es6":19,"./../shaders.es6":15}],14:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _createClass = function () {
-    function defineProperties(target, props) {
-        for (var i = 0; i < props.length; i++) {
-            var descriptor = props[i];descriptor.enumerable = descriptor.enumerable || false;descriptor.configurable = true;if ("value" in descriptor) descriptor.writable = true;Object.defineProperty(target, descriptor.key, descriptor);
-        }
-    }return function (Constructor, protoProps, staticProps) {
-        if (protoProps) defineProperties(Constructor.prototype, protoProps);if (staticProps) defineProperties(Constructor, staticProps);return Constructor;
-    };
-}();
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 var _note = require('./musictheory/note.es6');
 
 var _note2 = _interopRequireDefault(_note);
 
-function _interopRequireDefault(obj) {
-    return obj && obj.__esModule ? obj : { default: obj };
-}
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-function _classCallCheck(instance, Constructor) {
-    if (!(instance instanceof Constructor)) {
-        throw new TypeError("Cannot call a class as a function");
-    }
-}
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var _class = function () {
-    function _class(cb) {
+    function _class(params, cb) {
         var _this = this;
 
         _classCallCheck(this, _class);
@@ -2113,6 +2216,11 @@ var _class = function () {
          * event callback
          */
         this._callback = cb;
+
+        /**
+         * JSON config
+         */
+        this._config = params;
 
         /**
          * keys down
@@ -2126,14 +2234,14 @@ var _class = function () {
          * @type {Array.<string>}
          * @private
          */
-        this._mapping = _note2.default.sharpNotations.concat(_note2.default.sharpNotations);
+        this._mapping = _note2.default.sharpNotations;
 
         /**
          * potential keys pressed in order
          * @type {string[]}
          * @private
          */
-        this._potentialKeys = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '-', '+', 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '[', ']'];
+        this._potentialKeys = ['`', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '+', 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '[', ']', '\\', 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';', '\''];
 
         document.addEventListener('keydown', function (event) {
             return _this.onKeyDown(event);
@@ -2148,6 +2256,7 @@ var _class = function () {
      * @param mapping
      */
 
+
     _createClass(_class, [{
         key: 'getKeysDown',
         value: function getKeysDown() {
@@ -2158,7 +2267,7 @@ var _class = function () {
                     if (c >= this._keys.length / 2) {
                         octave = 1;
                     }
-                    down.push({ notation: this._mapping[c], octave: octave, index: c, velocity: this._keys[c] });
+                    down.push({ notation: this._mapping[c], octave: octave + 2, index: c, velocity: this._keys[c] });
                 }
             }
             return down;
@@ -2176,9 +2285,10 @@ var _class = function () {
             if (key !== -1 && (this._keys[key] === 0 || !this._keys[key])) {
                 this._keys[key] = 1.0; // on an actual MIDI keyboard, we'd have a velocity
                 var octave = Math.floor(key / _note2.default.sharpNotations.length);
+                var indx = key % this._mapping.length;
                 this._callback({
-                    notation: this._mapping[key],
-                    octave: octave,
+                    notation: this._mapping[indx],
+                    octave: octave + this._config.startoctave,
                     index: key,
                     velocity: 1.0,
                     action: 'press' });
@@ -2197,9 +2307,10 @@ var _class = function () {
             if (key !== -1) {
                 this._keys[key] = 0.0; // on an actual MIDI keyboard, we'd have a velocity
                 var octave = Math.floor(key / _note2.default.sharpNotations.length);
+                var indx = key % this._mapping.length;
                 this._callback({
-                    notation: this._mapping[key],
-                    octave: octave,
+                    notation: this._mapping[indx],
+                    octave: octave + this._config.startoctave,
                     index: key,
                     velocity: 0,
                     action: 'release' });
@@ -2212,7 +2323,7 @@ var _class = function () {
 
 exports.default = _class;
 
-},{"./musictheory/note.es6":6}],13:[function(require,module,exports){
+},{"./musictheory/note.es6":6}],15:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2229,7 +2340,7 @@ exports.default = {
   }
 };
 
-},{}],14:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2259,7 +2370,7 @@ exports.default = {
     grayscale: [0x000000, 0x2a2a2a, 0x5a5a5a, 0x8a8a8a, 0xaaaaaa, 0xffffff]
 };
 
-},{}],15:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -2270,9 +2381,7 @@ var _colors = require('./colors.es6');
 
 var _colors2 = _interopRequireDefault(_colors);
 
-function _interopRequireDefault(obj) {
-    return obj && obj.__esModule ? obj : { default: obj };
-}
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 exports.default = {
     keys: {
@@ -2344,7 +2453,7 @@ exports.default = {
     }
 };
 
-},{"./colors.es6":14}],16:[function(require,module,exports){
+},{"./colors.es6":16}],18:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -2355,9 +2464,7 @@ var _note = require('./musictheory/note.es6');
 
 var _note2 = _interopRequireDefault(_note);
 
-function _interopRequireDefault(obj) {
-    return obj && obj.__esModule ? obj : { default: obj };
-}
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 exports.default = {
     SYNTHDRUM: 'synth_drum',
@@ -2388,6 +2495,7 @@ exports.default = {
         });
     },
 
+
     /**
      * pause playing midi file
      */
@@ -2396,6 +2504,7 @@ exports.default = {
         MIDI.Player.pause();
     },
 
+
     /**
      * resume playing midi file
      */
@@ -2403,6 +2512,7 @@ exports.default = {
         this.playerState = 'playing';
         MIDI.Player.resume();
     },
+
 
     /**
      * check if instrument is loaded
@@ -2416,6 +2526,7 @@ exports.default = {
             return false;
         }
     },
+
 
     /**
      * load instrument
@@ -2438,6 +2549,7 @@ exports.default = {
             }
         });
     },
+
 
     /**
      * play a tone
@@ -2463,6 +2575,7 @@ exports.default = {
         }
     },
 
+
     /**
      * note on
      * @param instrument
@@ -2484,6 +2597,7 @@ exports.default = {
         }
     },
 
+
     /**
      * note off
      * @param notation
@@ -2498,6 +2612,7 @@ exports.default = {
         MIDI.noteOff(midichannel, note, delay);
     },
 
+
     /**
      * add event listener
      * @param eventtype
@@ -2510,11 +2625,13 @@ exports.default = {
         this._listeners.push({ type: eventtype, callback: callback });
     },
 
+
     /**
      * on instrument loaded
      * @param event
      */
     onInstrumentLoaded: function onInstrumentLoaded() {},
+
 
     /**
      * on instrument load progress
@@ -2528,6 +2645,7 @@ exports.default = {
             this._instrumentsLoaded.push(instrument);
         }
     },
+
 
     /**
      * on instrument loaded error
@@ -2554,6 +2672,7 @@ exports.default = {
         console.log('error', err);
     },
 
+
     /**
      * on midi data callback
      * @param data
@@ -2570,7 +2689,7 @@ exports.default = {
     }
 };
 
-},{"./musictheory/note.es6":6}],17:[function(require,module,exports){
+},{"./musictheory/note.es6":6}],19:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -2581,9 +2700,7 @@ var _note = require('./musictheory/note.es6');
 
 var _note2 = _interopRequireDefault(_note);
 
-function _interopRequireDefault(obj) {
-    return obj && obj.__esModule ? obj : { default: obj };
-}
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 exports.default = {
     /**
@@ -2602,6 +2719,7 @@ exports.default = {
         }
         return object;
     },
+
 
     /**
      * turn decimal color to RGB

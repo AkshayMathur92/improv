@@ -23,6 +23,34 @@ export default {
     flatNotations: ["A", "Bb", "B", "C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab"],
 
     /**
+     * get notation index when notation is either flat or sharp
+     * @param notation
+     */
+    indexOfNotation(notation) {
+        var index = this.sharpNotations.indexOf(notation);
+        if (index === -1) {
+            index = this.flatNotations.indexOf(notation);
+        }
+        return index;
+    },
+
+    /**
+     * get notation given an index
+     * @param index
+     */
+    notationAtIndex(index, preferFlat) {
+        if (index >= this.sharpNotations.length) {
+            index = index - this.sharpNotations.length;
+        }
+
+        if (preferFlat) {
+            return this.flatNotations[index];
+        } else {
+            return this.sharpNotations[index];
+        }
+    },
+
+    /**
      * odd notations
      * @const
      * @static

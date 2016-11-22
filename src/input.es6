@@ -3,16 +3,16 @@ import MIDIKeyManager from './midikeymanager.es6';
 import KeySignaturePrediction from './musictheory/keysignatureprediction.es6';
 
 export default class {
-    constructor(type, cb) {
+    constructor(params, cb) {
         /**
          * key manager
          * @type {$ES6_ANONYMOUS_CLASS$}
          * @private
          */
-        if (type === 'QWERTY') {
-            this._keymanager = new QWERTYKeyManager( changed => this.onKeyChange(changed));
-        } else if (type === 'MIDI') {
-            this._keymanager = new MIDIKeyManager( changed => this.onKeyChange(changed));
+        if (params.device === 'QWERTY') {
+            this._keymanager = new QWERTYKeyManager(params, changed => this.onKeyChange(changed));
+        } else if (params.device === 'MIDI') {
+            this._keymanager = new MIDIKeyManager(params, changed => this.onKeyChange(changed));
         }
 
         /**

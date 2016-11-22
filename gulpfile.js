@@ -11,8 +11,10 @@ gulp.task('build', function () {
     return browserify({
         entries: 'src/improv.es6',
         standalone: 'Improv',
+        cache: {},
+        packageCache: {},
         extensions: ['es2015'], debug: true})
-        .transform(babelify)
+       // .transform(babelify)
         .bundle()
         .pipe(source('improv.js'))
         .pipe(buffer())
