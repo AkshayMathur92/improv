@@ -20,13 +20,6 @@ export default class {
         this._keys = [];
 
         /**
-         * keyboard to key mapping
-         * @type {Array.<string>}
-         * @private
-         */
-        this._mapping = Note.sharpNotations;
-
-        /**
          * potential keys pressed in order
          * @type {string[]}
          * @private
@@ -51,7 +44,7 @@ export default class {
             if (this._keys[c] > 0) {
                 var octave = 0;
                 if (c >= this._keys.length/2) { octave = 1; }
-                down.push( { notation: this._mapping[c], octave: octave + 2, index: c, velocity: this._keys[c]} );
+                down.push( { notation: Note.notationAtIndex(c), octave: octave + 2, index: c, velocity: this._keys[c]} );
             }
         }
         return down;
@@ -66,11 +59,10 @@ export default class {
         if (key !== -1 && (this._keys[key] === 0 || !this._keys[key])) {
             this._keys[key] = 1.0; // on an actual MIDI keyboard, we'd have a velocity
             var octave = Math.floor(key / Note.sharpNotations.length);
-            var indx = key % this._mapping.length;
             this._callback({
-                notation: this._mapping[indx],
+                notation: Note.notationAtIndex(key),
                 octave: octave + this._config.startoctave,
-                index: key,
+                //index: key,
                 velocity: 1.0,
                 action: 'press' });
         }
@@ -85,11 +77,10 @@ export default class {
         if (key !== -1) {
             this._keys[key] = 0.0; // on an actual MIDI keyboard, we'd have a velocity
             var octave = Math.floor(key / Note.sharpNotations.length);
-            var indx = key % this._mapping.length;
             this._callback({
-                notation: this._mapping[indx],
+                notation: Note.notationAtIndex(key),
                 octave: octave + this._config.startoctave,
-                index: key,
+                //index: key,
                 velocity: 0,
                 action: 'release' });
         }

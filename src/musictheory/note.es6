@@ -40,7 +40,7 @@ export default {
      */
     notationAtIndex(index, preferFlat) {
         if (index >= this.sharpNotations.length) {
-            index = index - this.sharpNotations.length;
+            index = index % this.sharpNotations.length;
         }
 
         if (preferFlat) {

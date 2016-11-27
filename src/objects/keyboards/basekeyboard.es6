@@ -36,13 +36,6 @@ export default class BaseKeyboard extends BaseGroup {
         this._startingNote = 'C';
 
         /**
-         * inactivity timer for suggestions
-         * @type {null}
-         * @private
-         */
-        this._inactivityTimer = null;
-
-        /**
          * key visuals
          * @type {Array}
          * @private
@@ -64,23 +57,10 @@ export default class BaseKeyboard extends BaseGroup {
         this._midiChannelStartIndex = 11;
 
         /**
-         * keyboard/key input
-         * @type {$ES6_ANONYMOUS_CLASS$}
-         * @private
-         */
-        //this._input = new Input(params.input, (keys) => this.onKeyInputChange(keys) );
-
-        /**
          * suggested keys from key signature prediction
          * @type {Array}
          */
-        //this.suggestedKeys = [];
-
-        /**
-         * current key signature
-         * @type {String}
-         */
-        //this.currentKeySignature = null;
+        this.suggestedKeys = [];
     }
     /**
      * on create scene (or earliest possible opportunity)
@@ -103,10 +83,6 @@ export default class BaseKeyboard extends BaseGroup {
                     this._keys[c].colortween.rcolor/100,
                     this._keys[c].colortween.gcolor/100,
                     this._keys[c].colortween.bcolor/100 );
-                this._keys[c].object.material.emissive.setRGB(
-                    this._keys[c].colortween.remissive/100,
-                    this._keys[c].colortween.gemissive/100,
-                    this._keys[c].colortween.bemissive/100 );
             }
         }
     }
@@ -148,19 +124,13 @@ export default class BaseKeyboard extends BaseGroup {
     /**
      * on inactivity (fade away keys and clear key sig)
      */
-    ///onInactive() {
     resetKeys() {
         for (var c = 0; c < this._keys.length; c++) {
             if (this._keys[c].suggested) {
-                var suggestionType = this._keys[c].suggested;
-                Utils.copyPropsTo(this._keys[c].colortween, Utils.decToRGB(Style.keys[suggestionType][this._keys[c].type].emissive, 100), 'emissive');
-                Utils.copyPropsTo(this._keys[c].colortween, Utils.decToRGB(Style.keys[suggestionType][this._keys[c].type].color, 100), 'color');
+                var currentColor = this._keys[c].object.material.color.getHex();
+                Utils.copyPropsTo(this._keys[c].colortween, Utils.decToRGB(currentColor, 100), 'color');
                 this._keys[c].colortween.animating = true;
-
-                var target = Utils.copyPropsTo({}, Utils.decToRGB(Style.keys.normal[this._keys[c].type].color, 100), 'emissive');
-                Utils.copyPropsTo(target, Utils.decToRGB(Style.keys.normal[this._keys[c].type].emissive, 100), 'color');
-
-                //this._input.clearPredictionHistory();
+                var target = Utils.copyPropsTo({}, Utils.decToRGB(Style.keys.normal[this._keys[c].type].color, 100), 'color');
                 createjs.Tween.get(this._keys[c].colortween)
                     .to(target, 2000)
                     .wait(100) // wait a few ticks, or the render cycle won't pick up the changes with the flag
@@ -170,41 +140,20 @@ export default class BaseKeyboard extends BaseGroup {
     }
 
     /**
-     * on key change
-     * @param keys
+     * change key signature to notation given
+     * @param notation
      */
-    /*onKeyInputChange(event) {
-        var key = this.findKeyObjectsForNotation(event.changed.notation);
-        var octave;
-        if (event.changed.octave / 2 === Math.floor(event.changed.octave / 2)) {
-            octave = 1;
-        } else {
-            octave = 0;
-        }
-
-        this.toggleKeyPressed(key[octave], event.changed.velocity);
-
-        if (event.predictedKey.length > 0 && event.predictedKey[0] !== this.currentKeySignature) {
-            this.onKeySignatureChange(event.predictedKey[0].key);
-        }
-    }*/
-
-    /**
-     * handler when key signature changes
-     * @param keysig
-     */
-    /*onKeySignatureChange(keysig) {
+    changeKeySignature(notation) {
         var c;
         for (c = 0; c < this.suggestedKeys.length; c++) {
-            this.toggleKeySuggestion(this.suggestedKeys[c], false);
+            this.toggleKeySuggestion(this.suggestedKeys[c], notation, false);
         }
-        this.currentKeySignature = keysig;
-        this.suggestedKeys = Note.keys[keysig];
+        this.suggestedKeys = Note.keys[notation];
 
         for (c = 0; c < this.suggestedKeys.length; c++) {
-            this.toggleKeySuggestion(this.suggestedKeys[c], true, c);
+            this.toggleKeySuggestion(this.suggestedKeys[c], notation, true, c);
         }
-    }*/
+    }
 
     /**
      * toggle key pressed
@@ -240,28 +189,31 @@ export default class BaseKeyboard extends BaseGroup {
     /**
      * toggle key suggestion
      * @param notation
+     * @param keysignotation
      * @param toggle
-     * @param index in keysig
      */
-    toggleKeySuggestion(notation, toggle, index) {
+    toggleKeySuggestion(notation, keysignotation, toggle) {
+        var ntIndex = Note.indexOfNotation(keysignotation);
+        var rootclr = Style.colorwheel[ntIndex];
+
         var keys = this.findKeyObjectsForNotation(notation);
+
         for (var c = 0; c < keys.length; c++) {
             if (toggle) {
-                clearTimeout(this._inactivityTimer);
-                this._inactivityTimer = setTimeout( () => this.onInactive(), 5000);
                 var clr;
-                if ( index===0 || index===2 || index===4 || index===6) {
+                if ( ntIndex===0 || ntIndex===2 || ntIndex===4 || ntIndex===6) {
                     clr = Style.keys.stronglySuggested[keys[c].type];
                     keys[c].suggested = 'stronglySuggested';
                 } else {
                     clr = Style.keys.suggested[keys[c].type];
                     keys[c].suggested = 'suggested';
                 }
-                keys[c].object.material.color.setHex(clr.color);
-                keys[c].object.material.emissive.setHex(clr.emissive);
+
+                keys[c].object.material.color.setHex(rootclr) ;//clr.color);
+              //  keys[c].object.material.emissive.setHex(rootclr) ; //clr.emissive);
             } else {
                 keys[c].object.material.color.setHex(Style.keys.normal[keys[c].type].color);
-                keys[c].object.material.emissive.setHex(Style.keys.normal[keys[c].type].emissive);
+               // keys[c].object.material.emissive.setHex(Style.keys.normal[keys[c].type].emissive);
                 keys[c].suggested = false;
             }
         }

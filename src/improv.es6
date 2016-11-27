@@ -9,6 +9,19 @@ import Input from './input.es6';
 
 export default class Improv {
     constructor(scene, configURI) {
+        /**
+         * current key signature
+         * @type {String}
+         */
+        this.currentKeySignature = null;
+
+        /**
+         * inactivity timer for suggestions
+         * @type {null}
+         * @private
+         */
+        this._inactivityTimer = null;
+
         this._scene = scene;
         this._request = new XMLHttpRequest();
         this._request.onreadystatechange = () => this.onConfigLoaded();
@@ -21,10 +34,19 @@ export default class Improv {
      * @param keys
      */
     onKeyInputChange(event) {
+        clearTimeout(this._inactivityTimer);
+        this._inactivityTimer = setTimeout( () => this.onInactivityTimeout(), 5000);
+
         this._keyboard.toggleKeyPressed({
             notation: event.changed.notation,
             octave: event.changed.octave,
             velocity: event.changed.velocity });
+
+        if (event.predictedKey.length > 0 && this.currentKeySignature !== event.predictedKey[0].key) {
+            this._keyboard.changeKeySignature(event.predictedKey[0].key);
+            this._hudKeyboard.changeKeySignature(event.predictedKey[0].key);
+            this.currentKeySignature = event.predictedKey[0].key;
+        }
 
         //this._keyboard.toggleKeyPressed(key[octave], event.changed.velocity);
          /*var key = this.findKeyObjectsForNotation(event.changed.notation);
@@ -42,6 +64,14 @@ export default class Improv {
          }*/
      }
 
+    /**
+     * inactivity timeout
+     */
+    onInactivityTimeout() {
+        this._keyboard.resetKeys();
+        this._hudKeyboard.resetKeys();
+        this._input.clearPredictionHistory();
+     }
 
     /**
      * on config loaded

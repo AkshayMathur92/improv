@@ -1,5 +1,10 @@
 import Colors from './colors.es6';
 export default {
+    colorwheel: [       0xfffa00, 0xffcf00, 0xffa600, 0xff7d01,
+                        0xff2000, 0xf42494, 0x8b20bb, 0x0024ba,
+                        0x007ac7, 0x00b2d6, 0x02b801, 0x84ce00 ],
+
+
     keys: {
         normal: {
             white: {
@@ -30,7 +35,9 @@ export default {
                 emissive: Colors.grayscale[1],
                 color: Colors.neon.orange
             }
-        }
+        },
+
+
     },
 
     metronome: {
