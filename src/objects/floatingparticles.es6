@@ -1,5 +1,6 @@
 import BaseGroup from '../../node_modules/trivr/src/basegroup.es6';
 import Style from '../themeing/style.es6';
+import Utils from '../utils.es6';
 
 export default class FloatingParticles extends BaseGroup {
     /**
@@ -28,32 +29,40 @@ export default class FloatingParticles extends BaseGroup {
                 blending: THREE.AdditiveBlending,
                 depthTest: false,
                 transparent : true });
-
-            this.materials[i].color.set(Style.floatingparticles.color);
-
             var particles = new THREE.Points( geometry, this.materials[i] );
 
             particles.rotation.x = Math.random() * 6;
             particles.rotation.y = Math.random() * 6;
             particles.rotation.z = Math.random() * 6;
             this.add(particles);
-
         }
+
+        this.setColor();
     }
 
-    onRender() {
-        var time = Date.now() * 0.00005;
-        for (var i = 0; i < this.children.length; i ++) {
-            var object = this.children[ i ];
-            if ( object instanceof THREE.Points ) {
-                object.rotation.y = time * ( i < 4 ? i + 1 : - ( i + 1 ) );
-            }
+    /**
+     * set drum hit/trigger color
+     * @param hex
+     */
+    setColor(hex) {
+        if (hex) {
+            this._color = Utils.decToRGB(hex, 100);
+        } else {
+            this._color = Utils.decToRGB(Style.floatingparticles.color, 100);
         }
 
-        /*for ( i = 0; i < this.materials.length; i ++ ) {
-            var h = ( 360 * ( 0 + time ) % 360 ) / 360;
-            this.materials[i].color.setHSL( 1, .5, h );
-        }*/
+        for (var c = 0; c < this.materials.length; c++) {
+            this.materials[c].color.set(this._color);
+        }
+     }
+
+    onRender() {
+        for (var i = 0; i < this.children.length; i ++) {
+            var object = this.children[i];
+            if (object instanceof THREE.Points) {
+                object.rotation.y = time * ( i < 4 ? i + 1 : -( i + 1 ) );
+            }
+        }
     }
 
 }

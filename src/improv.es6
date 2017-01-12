@@ -2,10 +2,12 @@ import Metronome from './objects/metronome.es6';
 import CircularKeyboard from './objects/keyboards/circularkeyboard.es6';
 import TraditionalKeyboard from './objects/keyboards/traditionalkeyboard.es6';
 import Dome from './objects/dome.es6';
-import FloatingParticles from './objects/floatingparticles.es6';
+import Particles from './objects/particleflock.es6';
 import Lighting from './objects/lighting.es6';
 import TonePlayback from './toneplayback.es6';
 import Input from './input.es6';
+import Style from './themeing/style.es6';
+import Note from './musictheory/note.es6';
 
 export default class Improv {
     constructor(scene, configURI) {
@@ -46,6 +48,8 @@ export default class Improv {
             this._keyboard.changeKeySignature(event.predictedKey[0].key);
             this._hudKeyboard.changeKeySignature(event.predictedKey[0].key);
             this.currentKeySignature = event.predictedKey[0].key;
+            this._metronome.setHitColor(Style.colorwheel[Note.indexOfNotation(event.predictedKey[0].key)]);
+            this._particles.setColor(Style.colorwheel[Note.indexOfNotation(event.predictedKey[0].key)]);
         }
 
         //this._keyboard.toggleKeyPressed(key[octave], event.changed.velocity);
@@ -71,6 +75,8 @@ export default class Improv {
         this._keyboard.resetKeys();
         this._hudKeyboard.resetKeys();
         this._input.clearPredictionHistory();
+        this._metronome.setHitColor();
+        this._particles.setColor();
      }
 
     /**
@@ -97,10 +103,12 @@ export default class Improv {
         this._input = new Input(config.input, (keys) => this.onKeyInputChange(keys) );
         this._keyboard = new TraditionalKeyboard(config.keyboard);
         this._hudKeyboard = new CircularKeyboard(config.notationdisplay);
+        this._metronome = new Metronome();
+        this._particles = new Particles();
 
         this._scene.addObjects([
-            new Metronome(),
-            new FloatingParticles(),
+            this._metronome,
+            this._particles,
             new Dome(),
             this._keyboard,
             this._hudKeyboard,

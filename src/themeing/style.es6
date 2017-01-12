@@ -44,7 +44,7 @@ export default {
         drum: {
             bumpmap: './assets/images/ripplemap.jpg',
             color: Colors.neutral.darkred,
-            hitcolor: Colors.neon.blue,
+            hitcolor: Colors.grayscale[0],
             emissive: Colors.grayscale[0],
             specular: Colors.neutral.grayblue
         },
@@ -58,7 +58,7 @@ export default {
                 './assets/images/ny.jpg',
                 './assets/images/nz.jpg' ],
             color: Colors.neutral.red,
-            hitcolor: Colors.neon.blue
+            hitcolor: Colors.grayscale[0]
         }
     },
 

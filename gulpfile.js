@@ -26,6 +26,8 @@ gulp.task('build', function () {
 
 gulp.task('libs', function() {
     return gulp.src([
+        './libs/GPUComputationRenderer.js',
+        './libs/SwarmParticleGeometry.js',
         './node_modules/createjs-tweenjs/lib/tweenjs-0.6.0.min.js',
         //'./node_modules/tone/build/Tone.min.js',
 
@@ -63,3 +65,4 @@ gulp.task('shaders', function() {
 });
 
 gulp.task('default', ['build', 'libs']);
+gulp.task('all', ['shaders', 'build', 'libs']);

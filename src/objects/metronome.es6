@@ -27,13 +27,27 @@ export default class Metronome extends BaseGroup {
          */
         this._tweenTargets = {
             drum: { animating: false, props: {} },
+        };
+
+        this.setHitColor();
+    }
+
+    /**
+     * set drum hit/trigger color
+     * @param hex
+     */
+    setHitColor(hex) {
+        if (hex) {
+            this._hitColor = Utils.decToRGB(hex, 100);
+        } else {
+            this._hitColor = Utils.decToRGB(Style.metronome.hammer.hitcolor, 100);
         }
     }
 
     onCreate(scenecollection, mycollection) {
         //this.addHammer('right', Math.PI/64, Math.PI * 2, 'C4');
         //this.addHammer('left', Math.PI/128, Math.PI/4, 'A4');
-        this.addHammer('up', Math.PI/32, Math.PI/2, 'G4');
+        this.addHammer('up', Math.PI/128, Math.PI/2, 'G4');
         this.addHammer('down', Math.PI/32, 0, 'F3');
         this.addDrum();
     }
@@ -96,7 +110,7 @@ export default class Metronome extends BaseGroup {
        // this._synth.triggerAttackRelease(hammer.note, "16n");
         hammer.animatingGlow = true;
         var startcolor = Utils.decToRGB(Style.metronome.hammer.color, 100);
-        var endcolor = Utils.decToRGB(Style.metronome.hammer.hitcolor, 100);
+        var endcolor = this._hitColor;
         hammer.glowColor.r = startcolor.r;
         hammer.glowColor.g = startcolor.g;
         hammer.glowColor.b = startcolor.b;
@@ -107,7 +121,7 @@ export default class Metronome extends BaseGroup {
             .call( function (scope) { scope.animatingGlow = false; } );
 
         var startcolor = Utils.decToRGB(Style.metronome.drum.color, 100);
-        var endcolor = Utils.decToRGB(Style.metronome.drum.hitcolor, 100);
+        var endcolor = this._hitColor;
         this._tweenTargets.drum.props.r = startcolor.r;
         this._tweenTargets.drum.props.g = startcolor.g;
         this._tweenTargets.drum.props.b = startcolor.b;
@@ -117,7 +131,7 @@ export default class Metronome extends BaseGroup {
         this._tweenTargets.drum.currentTween = createjs.Tween.get(this._tweenTargets.drum.props)
             .to({
                 r: endcolor.r, g: endcolor.g, b: endcolor.b,
-                bumpscale: 5,
+                bumpscale: 1.5,
                 zPosition: -400 + hammer.direction * 50 }, 150)
             .to({
                 r: startcolor.r, g: startcolor.g, b: startcolor.b,
