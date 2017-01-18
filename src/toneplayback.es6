@@ -95,12 +95,12 @@ export default {
      * @param notation
      * @param midichannel
      */
-    noteOn(instrument, notation, midichannel, duration) {
+    noteOn(instrument, notation, midichannel, duration, velocity) {
         if (!this.isInstrumentLoaded(instrument)) { return; }
         var note = Note.notationToMIDI(notation);
         MIDI.programChange(midichannel, MIDI.GM.byName[instrument].number);
-        var velocity = 127; // how hard the note hits
-        MIDI.setVolume(0, 127);
+        if (!velocity) { velocity = 127; }
+        MIDI.setVolume(0, velocity);
         MIDI.noteOn(midichannel, note, velocity, 0);
 
         if (duration) {

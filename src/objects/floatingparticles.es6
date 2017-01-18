@@ -15,9 +15,9 @@ export default class FloatingParticles extends BaseGroup {
 
         for (var i = 0; i < 10000; i ++) {
             var vertex = new THREE.Vector3();
-            vertex.x = Math.random() * 2000 - 1000;
-            vertex.y = Math.random() * 2000 - 1000;
-            vertex.z = Math.random() * 2000 - 1000;
+            vertex.x = Math.random() * 2000 - 500;
+            vertex.y = Math.random() * 2000 - 500;
+            vertex.z = Math.random() * 2000 - 500;
             geometry.vertices.push( vertex );
         }
 

@@ -194,7 +194,8 @@ export default class BaseKeyboard extends BaseGroup {
                 if (!midichannel) {
                     midichannel = this._midiChannelStartIndex;
                 }
-                TonePlayback.noteOn(TonePlayback.PIANO, k.notation + k.octave, midichannel);
+
+                TonePlayback.noteOn(TonePlayback.PIANO, k.notation + k.octave, midichannel, null, k.velocity * 100 );
                 key.currentRotation = k.velocity * this._rotationOnPress;
                 key.object.rotateX(key.currentRotation);
                 key.midichannel = midichannel;

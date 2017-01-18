@@ -12,9 +12,13 @@
     "soundfontlocation": "./assets/audio/soundfont/",
     "soundfonts": [ "acoustic_grand_piano", "synth_drum"]
   },
-
+  "metronome": {
+    "rate": 64,
+    "velocity": 55,
+    "notation": "A5"
+  },
   "input": {
-    "device": "MIDI",
+    "device": "WSMIDI",
     "startoctave": 4
   }
 }
