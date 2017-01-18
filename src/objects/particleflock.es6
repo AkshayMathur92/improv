@@ -22,7 +22,7 @@ export default class ParticleFlock extends BaseGroup {
         this._color;
 
         /* TEXTURE WIDTH FOR SIMULATION */
-        this.WIDTH = 64;
+        this.WIDTH = 32;
 
         var BIRDS = this.WIDTH * this.WIDTH;
 
@@ -98,11 +98,11 @@ export default class ParticleFlock extends BaseGroup {
     onRender(time) {
 
         if (this.immersed && this.flockGPURenderer.positionUniforms.depth.value < this.immersionLevels.max) {
-            this.flockGPURenderer.positionUniforms.depth.value += 1.0;
+            this.flockGPURenderer.positionUniforms.depth.value += 0.5;
         }
 
         if (!this.immersed && this.flockGPURenderer.positionUniforms.depth.value > this.immersionLevels.min) {
-            this.flockGPURenderer.positionUniforms.depth.value -= 1.0;
+            this.flockGPURenderer.positionUniforms.depth.value -= 0.5;
         }
 
         var delta = time.delta / 1000;
@@ -168,6 +168,7 @@ export default class ParticleFlock extends BaseGroup {
 
     initBirds() {
         var geometry = new THREE.SwarmParticleGeometry(this.WIDTH);
+        geometry.scale(0.5, 0.5, 0.5);
 
         // For Vertex and Fragment
         this.flockGPURenderer.uniforms = {

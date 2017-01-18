@@ -24,7 +24,7 @@ export default class FloatingParticles extends BaseGroup {
         this.materials = [];
         for (var i = 0; i < 4; i ++ ) {
             this.materials[i] = new THREE.PointsMaterial({
-                size: Math.random()*1.0 + .75,
+                size: Math.random()*2.0 + .75,
                 map: sprite,
                 blending: THREE.AdditiveBlending,
                 depthTest: false,
@@ -45,10 +45,10 @@ export default class FloatingParticles extends BaseGroup {
      * @param hex
      */
     setColor(hex) {
-        if (hex) {
-            this._color = Utils.decToRGB(hex, 100);
+        if (!hex) {
+            this._color = Style.floatingparticles.color;
         } else {
-            this._color = Utils.decToRGB(Style.floatingparticles.color, 100);
+            this._color = hex;
         }
 
         for (var c = 0; c < this.materials.length; c++) {
@@ -56,11 +56,12 @@ export default class FloatingParticles extends BaseGroup {
         }
      }
 
-    onRender() {
+    onRender(time) {
         for (var i = 0; i < this.children.length; i ++) {
             var object = this.children[i];
             if (object instanceof THREE.Points) {
-                object.rotation.y = time * ( i < 4 ? i + 1 : -( i + 1 ) );
+                object.rotation.y += .001;
+                object.rotation.z += .001;
             }
         }
     }

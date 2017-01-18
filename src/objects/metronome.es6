@@ -47,8 +47,8 @@ export default class Metronome extends BaseGroup {
     onCreate(scenecollection, mycollection) {
         //this.addHammer('right', Math.PI/64, Math.PI * 2, 'C4');
         //this.addHammer('left', Math.PI/128, Math.PI/4, 'A4');
-        this.addHammer('up', Math.PI/128, Math.PI/2, 'G4');
-        this.addHammer('down', Math.PI/32, 0, 'F3');
+        this.addHammer('up', Math.PI/32, Math.PI/2, 'C3');
+        //this.addHammer('down', Math.PI/32, 0, 'F3');
         this.addDrum();
     }
 

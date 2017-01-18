@@ -1,7 +1,7 @@
 {
   "keyboard": {
-    "octaves": 5,
-    "startoctave": 2,
+    "octaves": 2,
+    "startoctave": 4,
     "assets": "./assets/models/keyboardkey.json"
   },
   "notationdisplay" : {
@@ -14,7 +14,7 @@
   },
 
   "input": {
-    "device": "QWERTY",
-    "startoctave": 2
+    "device": "MIDI",
+    "startoctave": 4
   }
 }

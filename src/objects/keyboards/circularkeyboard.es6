@@ -33,7 +33,7 @@ export default class CircularKeyboard extends BaseKeyboard {
      */
     setupScene(geometry, material) {
         super.setupScene(geometry, material);
-        this.group.position.z = -400;
+        this.group.position.z = -600;
         this.group.scale.set(10, 10, 10);
     }
 }

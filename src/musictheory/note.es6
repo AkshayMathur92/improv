@@ -99,7 +99,12 @@ export default {
         var octave = notation.charAt(notation.length-1);
         if (parseInt(octave) == octave) {
             note.octave = octave;
-            note.notation = notation.substr(0, notation.length-2);
+            if (notation.length === 3) {
+                note.notation = notation.charAt(0) + notation.charAt(1)
+            } else {
+                note.notation = notation.charAt(0);
+            }
+
         } else {
             note.octave = 4; // default
             note.notation = notation;

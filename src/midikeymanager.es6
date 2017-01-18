@@ -72,7 +72,6 @@ export default class {
      * @param msg
      */
     onMIDIMessage(msg) {
-        console.log(msg)
         var cmd = msg.data[0] >> 4;
         var channel = msg.data[0] & 0xf;
         var noteNumber = msg.data[1];
@@ -111,7 +110,7 @@ export default class {
     onKeyDown(key, velocity) {
         this._keys[key] = velocity;
         var octave = 0;
-        octave = Math.floor(key / Note.sharpNotations.length);
+        octave = Math.floor((key+3) / Note.sharpNotations.length);
         this._callback({
             notation: this._mapping[key],
             octave: octave,
@@ -127,7 +126,7 @@ export default class {
     onKeyUp(key) {
         this._keys[key] = 0.0;
         var octave = 0;
-        octave = Math.floor(key / Note.sharpNotations.length);
+        octave = Math.floor((key+3) / Note.sharpNotations.length);
         this._callback({
             notation: this._mapping[key],
             octave: octave,

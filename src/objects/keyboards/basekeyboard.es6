@@ -36,6 +36,13 @@ export default class BaseKeyboard extends BaseGroup {
         this._startingNote = 'C';
 
         /**
+         * ending note on keyboard
+         * @type {string}
+         * @private
+         */
+        this._endingNote = 'C';
+
+        /**
          * key visuals
          * @type {Array}
          * @private
@@ -108,16 +115,26 @@ export default class BaseKeyboard extends BaseGroup {
      */
     setupScene(geometry, material) {
         var startOffset = Note.indexOfNotation(this._startingNote);
+        var endOffset = Note.indexOfNotation(this._endingNote);
         var ntindex = 0;
+        var octave = 0;
         var transformPosition = 0;
+        var notes = [];
         for (var c = 0; c < this._numOctaves; c++) {
-            for (var d = 0; d < Note.sharpNotations.length; d++) {
-                var note = Note.notationAtIndex(d + startOffset);
-                transformPosition = this.addKey(transformPosition, note.indexOf('#') === -1, note, c, geometry, material);
-                ntindex ++;
+            notes = notes.concat(Note.sharpNotations);
+        }
+        notes = notes.concat(Note.sharpNotations.slice(0, endOffset+1));
+
+        for (var d = 0; d < notes.length; d++) {
+            if (d >= startOffset) {
+                transformPosition = this.addKey(transformPosition, notes[d].indexOf('#') === -1, notes[d], octave, geometry, material);
+            }
+            ntindex ++;
+            if (ntindex >= Note.sharpNotations.length) {
+                ntindex = 0;
+                octave ++;
             }
         }
-
         return transformPosition;
     }
 
@@ -163,7 +180,7 @@ export default class BaseKeyboard extends BaseGroup {
         var key = this.findKeyObjectForNotation(k.notation, k.octave);
         if (key) {
             if (k.velocity === 0) {
-                TonePlayback.noteOff(key.notation, key.midichannel, 1/8);
+                TonePlayback.noteOff(k.notation + k.octave, key.midichannel, 1/8);
                 var channelindex = this._midichannels.indexOf(key.midichannel);
                 this._midichannels.splice(channelindex, 1);
                 clearTimeout(this._inactivityTimer);
@@ -177,7 +194,7 @@ export default class BaseKeyboard extends BaseGroup {
                 if (!midichannel) {
                     midichannel = this._midiChannelStartIndex;
                 }
-                TonePlayback.noteOn(TonePlayback.PIANO, key.notation, midichannel);
+                TonePlayback.noteOn(TonePlayback.PIANO, k.notation + k.octave, midichannel);
                 key.currentRotation = k.velocity * this._rotationOnPress;
                 key.object.rotateX(key.currentRotation);
                 key.midichannel = midichannel;
@@ -279,6 +296,7 @@ export default class BaseKeyboard extends BaseGroup {
                 y: key.rotation.y,
                 z: key.rotation.z }
         });
+
         this.add(key,'key_' + notation);
         return transformPosition;
     }
@@ -313,6 +331,7 @@ export default class BaseKeyboard extends BaseGroup {
      */
     findKeyObjectForNotation(notation, octave) {
         var notationOffset = Note.indexOfNotation(this._startingNote);
+        notationOffset += this._startingOctave * Note.sharpNotations.length;
         var indx = octave * Note.sharpNotations.length + Note.sharpNotations.indexOf(notation) - notationOffset;
         return this._keys[indx];
     }

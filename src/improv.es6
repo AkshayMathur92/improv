@@ -2,7 +2,8 @@ import Metronome from './objects/metronome.es6';
 import CircularKeyboard from './objects/keyboards/circularkeyboard.es6';
 import TraditionalKeyboard from './objects/keyboards/traditionalkeyboard.es6';
 import Dome from './objects/dome.es6';
-import Particles from './objects/particleflock.es6';
+import ParticleSwarm from './objects/particleflock.es6';
+import ParticlesFloating from './objects/floatingparticles.es6';
 import Lighting from './objects/lighting.es6';
 import TonePlayback from './toneplayback.es6';
 import Input from './input.es6';
@@ -50,6 +51,7 @@ export default class Improv {
             this.currentKeySignature = event.predictedKey[0].key;
             this._metronome.setHitColor(Style.colorwheel[Note.indexOfNotation(event.predictedKey[0].key)]);
             this._particles.setColor(Style.colorwheel[Note.indexOfNotation(event.predictedKey[0].key)]);
+            this._swarm.setColor(Style.colorwheel[Note.indexOfNotation(event.predictedKey[0].key)]);
         }
 
         //this._keyboard.toggleKeyPressed(key[octave], event.changed.velocity);
@@ -104,11 +106,13 @@ export default class Improv {
         this._keyboard = new TraditionalKeyboard(config.keyboard);
         this._hudKeyboard = new CircularKeyboard(config.notationdisplay);
         this._metronome = new Metronome();
-        this._particles = new Particles();
+        //this._swarm = new ParticleSwarm();
+        this._particles = new ParticlesFloating();
 
         this._scene.addObjects([
             this._metronome,
             this._particles,
+            //this._swarm,
             new Dome(),
             this._keyboard,
             this._hudKeyboard,
@@ -117,6 +121,8 @@ export default class Improv {
         for (var c = 0; c < config.sound.soundfonts.length; c++) {
             TonePlayback.loadInstrument(config.sound.soundfonts[c], config.sound.soundfontlocation);
         }
+
+        this._scene.position.z = -100;
         document.addEventListener('keydown', event => this.onKeyDown(event) );
     }
 
