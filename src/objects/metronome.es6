@@ -5,7 +5,9 @@ import Utils from '../utils.es6';
 import TonePlayback from '../toneplayback.es6';
 
 export default class Metronome extends BaseGroup {
-    onInitialize() {
+    onInitialize(params) {
+        this._config = params;
+
         /**
          * metronome hammers in scene
          * @type {Array}
@@ -47,7 +49,7 @@ export default class Metronome extends BaseGroup {
     onCreate(scenecollection, mycollection) {
         //this.addHammer('right', Math.PI/64, Math.PI * 2, 'C4');
         //this.addHammer('left', Math.PI/128, Math.PI/4, 'A4');
-        this.addHammer('up', Math.PI/32, Math.PI/2, 'C3');
+        this.addHammer('up', Math.PI/this._config.rate, Math.PI/2, this._config.notation);
         //this.addHammer('down', Math.PI/32, 0, 'F3');
         this.addDrum();
     }
@@ -106,7 +108,7 @@ export default class Metronome extends BaseGroup {
      * @param hammer
      */
     triggerDrum(hammer) {
-        TonePlayback.noteOn(TonePlayback.SYNTHDRUM, hammer.note, 10, 1/8);
+        TonePlayback.noteOn(TonePlayback.SYNTHDRUM, hammer.note, 10, 1/16, this._config.velocity);
        // this._synth.triggerAttackRelease(hammer.note, "16n");
         hammer.animatingGlow = true;
         var startcolor = Utils.decToRGB(Style.metronome.hammer.color, 100);
@@ -162,7 +164,7 @@ export default class Metronome extends BaseGroup {
         } );
 
         this.drum = new THREE.Mesh( drumgeom, material );
-        this.drum.position.z = -400;
+        this.drum.position.z = -600;
         this.add(this.drum, 'drum');
     }
 

@@ -46,7 +46,7 @@ export default class TraditionalKeyboard extends BaseKeyboard {
     setupScene(geometry, material) {
         var lastTransformPosition = super.setupScene(geometry, material);
         this.group.position.x = -lastTransformPosition/2 * 10;
-        this.group.position.z = -400;
+        this.group.position.z = -230;
         this.group.position.y = -200;
         this.group.rotation.x = -Math.PI/2;
         this.group.scale.set(10, 10, 10);
