@@ -210,27 +210,27 @@ export default class BaseKeyboard extends BaseGroup {
      * @param toggle
      */
     toggleKeySuggestion(notation, keysignotation, toggle) {
-        var ntIndex = Note.indexOfNotation(keysignotation);
-        var rootclr = Style.colorwheel[ntIndex];
+        var ntIndex = Note.keys[keysignotation].indexOf(notation);// Note.indexOfNotation(keysignotation);
+        var keySigIndex = Note.indexOfNotation(keysignotation);
+        var rootclrHS = Style.colorwheelHighSaturation[keySigIndex];
+        var rootclrLS = Style.colorwheelLowSaturation[keySigIndex];
 
         var keys = this.findKeyObjectsForNotation(notation);
-
         for (var c = 0; c < keys.length; c++) {
             if (toggle) {
                 var clr;
                 if ( ntIndex===0 || ntIndex===2 || ntIndex===4 || ntIndex===6) {
                     clr = Style.keys.stronglySuggested[keys[c].type];
                     keys[c].suggested = 'stronglySuggested';
+                    keys[c].object.material.color.setHex(rootclrHS);
                 } else {
                     clr = Style.keys.suggested[keys[c].type];
                     keys[c].suggested = 'suggested';
+                    keys[c].object.material.color.setHex(rootclrLS);
                 }
-
-                keys[c].object.material.color.setHex(rootclr) ;//clr.color);
-              //  keys[c].object.material.emissive.setHex(rootclr) ; //clr.emissive);
             } else {
                 keys[c].object.material.color.setHex(Style.keys.normal[keys[c].type].color);
-               // keys[c].object.material.emissive.setHex(Style.keys.normal[keys[c].type].emissive);
+                //keys[c].object.material.emissive.setHex(Style.keys.normal[keys[c].type].emissive);
                 keys[c].suggested = false;
             }
         }

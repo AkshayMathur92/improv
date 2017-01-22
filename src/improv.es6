@@ -49,9 +49,9 @@ export default class Improv {
             this._keyboard.changeKeySignature(event.predictedKey[0].key);
             this._hudKeyboard.changeKeySignature(event.predictedKey[0].key);
             this.currentKeySignature = event.predictedKey[0].key;
-            this._metronome.setHitColor(Style.colorwheel[Note.indexOfNotation(event.predictedKey[0].key)]);
-            this._particles.setColor(Style.colorwheel[Note.indexOfNotation(event.predictedKey[0].key)]);
-            this._swarm.setColor(Style.colorwheel[Note.indexOfNotation(event.predictedKey[0].key)]);
+            this._metronome.setHitColor(Style.colorwheelHighSaturation[Note.indexOfNotation(event.predictedKey[0].key)]);
+            this._particles.setColor(Style.colorwheelHighSaturation[Note.indexOfNotation(event.predictedKey[0].key)]);
+            //this._swarm.setColor(Style.colorwheel[Note.indexOfNotation(event.predictedKey[0].key)]);
         }
 
         //this._keyboard.toggleKeyPressed(key[octave], event.changed.velocity);
@@ -122,7 +122,6 @@ export default class Improv {
             TonePlayback.loadInstrument(config.sound.soundfonts[c], config.sound.soundfontlocation);
         }
 
-        this._scene.position.z = -100;
         document.addEventListener('keydown', event => this.onKeyDown(event) );
     }
 
