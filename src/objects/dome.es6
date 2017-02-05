@@ -9,7 +9,8 @@ export default class Dome extends BaseGroup {
      * @param custom
      */
     onCreate(scene, custom) {
-        var mesh = new THREE.Mesh(this.createGeometry(), this.createMaterial());
+        this._material = this.createMaterial();
+        var mesh = new THREE.Mesh(this.createGeometry(), this._material);
         mesh.position.z = 5;
         this.add(mesh, 'dome');
     }
@@ -23,6 +24,10 @@ export default class Dome extends BaseGroup {
         if (TonePlayback.isPlaying) {
             this.group.rotation.y += Math.PI / 1024;
         }
+    }
+
+    setEmissive(color) {
+        this._material.emissive.setHex(color);
     }
 
     /**

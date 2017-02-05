@@ -8,7 +8,7 @@ export default class Lighting extends BaseGroup {
      * @param custom
      */
     onCreate(scene, custom) {
-        var light = new THREE.HemisphereLight( Style.lighting.hemisphere.top, Style.lighting.hemisphere.bottom, 4 );
+        this._light = new THREE.HemisphereLight( Style.lighting.hemisphere.top, Style.lighting.hemisphere.bottom, 4 );
         var spotLight = new THREE.SpotLight( Style.lighting.spotlight );
         spotLight.position.set( 0, 0, 400 );
         spotLight.rotation.x = Math.PI / 2;
@@ -21,6 +21,27 @@ export default class Lighting extends BaseGroup {
         spotLight.shadow.camera.fov = 30;
 
         this.add(spotLight);
-        this.add(light);
+        this.add(this._light);
+
+        this._animation = {};
+    }
+
+    /**
+     * on render scene
+     * @param scene
+     * @param custom
+     */
+    onRender(scene, custom) {
+        if (this._animation.animating) {
+            this._light.intensity = this._animation.intensity;
+        }
+    }
+
+    setIntensity(value) {
+        this._animation = { animating: true, intensity: this._light.intensity };
+        createjs.Tween.get(this._animation)
+            .to({ intensity: value }, 1000)
+            .wait(100) // wait a few ticks, or the render cycle won't pick up the changes with the flag
+            .call( function() { this.animating = false; } );
     }
 }

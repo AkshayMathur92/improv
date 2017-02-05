@@ -27,13 +27,14 @@ export default class FloatingParticles extends BaseGroup {
                 size: Math.random()*2.0 + .75,
                 map: sprite,
                 blending: THREE.AdditiveBlending,
-                depthTest: false,
+                depthTest: true,
                 transparent : true });
             var particles = new THREE.Points( geometry, this.materials[i] );
 
             particles.rotation.x = Math.random() * 6;
             particles.rotation.y = Math.random() * 6;
             particles.rotation.z = Math.random() * 6;
+            particles.renderOrder = 1;
             this.add(particles);
         }
 

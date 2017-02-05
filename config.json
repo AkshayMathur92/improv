@@ -1,7 +1,7 @@
 {
   "keyboard": {
-    "octaves": 2,
-    "startoctave": 4,
+    "octaves": 5,
+    "startoctave": 3,
     "assets": "./assets/models/keyboardkey.json"
   },
   "notationdisplay" : {
@@ -13,12 +13,17 @@
     "soundfonts": [ "acoustic_grand_piano", "synth_drum"]
   },
   "metronome": {
-    "rate": 64,
-    "velocity": 55,
-    "notation": "A5"
+    "velocity": 22,
+    "hammers": [
+      {
+        "direction": "up",
+        "rate": 36,
+        "offset": 4,
+        "notation": "A8"
+      }
+    ]
   },
   "input": {
-    "device": "WSMIDI",
-    "startoctave": 4
+    "device": "MIDI"
   }
 }

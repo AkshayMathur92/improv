@@ -146,8 +146,10 @@ export default class BaseKeyboard extends BaseGroup {
             if (this._keys[c].suggested) {
                 var currentColor = this._keys[c].object.material.color.getHex();
                 Utils.copyPropsTo(this._keys[c].colortween, Utils.decToRGB(currentColor, 100), 'color');
+                this._keys[c].colortween.steps = 1;
                 this._keys[c].colortween.animating = true;
                 var target = Utils.copyPropsTo({}, Utils.decToRGB(Style.keys.normal[this._keys[c].type].color, 100), 'color');
+                target.steps = 0;
                 createjs.Tween.get(this._keys[c].colortween)
                     .to(target, 2000)
                     .wait(100) // wait a few ticks, or the render cycle won't pick up the changes with the flag
@@ -211,7 +213,10 @@ export default class BaseKeyboard extends BaseGroup {
      * @param toggle
      */
     toggleKeySuggestion(notation, keysignotation, toggle) {
-        var ntIndex = Note.keys[keysignotation].indexOf(notation);// Note.indexOfNotation(keysignotation);
+        var ntIndex = Note.keys[keysignotation].indexOf(notation);
+        if (keysignotation.charAt(keysignotation.length-1) === 'm') {
+            keysignotation = keysignotation.slice(0, keysignotation.length-1);
+        }
         var keySigIndex = Note.indexOfNotation(keysignotation);
         var rootclrHS = Style.colorwheelHighSaturation[keySigIndex];
         var rootclrLS = Style.colorwheelLowSaturation[keySigIndex];
@@ -220,21 +225,25 @@ export default class BaseKeyboard extends BaseGroup {
         for (var c = 0; c < keys.length; c++) {
             if (toggle) {
                 var clr;
-                if ( ntIndex===0 || ntIndex===2 || ntIndex===4 || ntIndex===6) {
+                if (ntIndex === 0 || ntIndex === 2 || ntIndex === 4 || ntIndex === 6) {
                     clr = Style.keys.stronglySuggested[keys[c].type];
-                    keys[c].suggested = 'stronglySuggested';
+                    keys[c].stronglySuggested = true;
+                    keys[c].suggested = true;
                     keys[c].object.material.color.setHex(rootclrHS);
                 } else {
                     clr = Style.keys.suggested[keys[c].type];
-                    keys[c].suggested = 'suggested';
+                    keys[c].suggested = true;
+                    keys[c].stronglySuggested = false;
                     keys[c].object.material.color.setHex(rootclrLS);
                 }
             } else {
                 keys[c].object.material.color.setHex(Style.keys.normal[keys[c].type].color);
                 //keys[c].object.material.emissive.setHex(Style.keys.normal[keys[c].type].emissive);
                 keys[c].suggested = false;
+                keys[c].stronglySuggested = false;
             }
         }
+        return keys;
     }
 
     /**
@@ -285,6 +294,7 @@ export default class BaseKeyboard extends BaseGroup {
             color = 'black';
             key = this.createBlackKey(geometry, material);
         }
+
         transformPosition = this.applyKeyTransform(key, transformPosition, white);
         this._keys.push({
             type: color,

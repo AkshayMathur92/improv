@@ -9,6 +9,7 @@ import TonePlayback from './toneplayback.es6';
 import Input from './input.es6';
 import Style from './themeing/style.es6';
 import Note from './musictheory/note.es6';
+import NotationTextDisplay from './objects/notationtextdisplay.es6';
 
 export default class Improv {
     constructor(scene, configURI) {
@@ -30,6 +31,7 @@ export default class Improv {
         this._request.onreadystatechange = () => this.onConfigLoaded();
         this._request.open('GET', configURI);
         this._request.send();
+        this._lastKey = { key: '', score: 0 };
     }
 
     /**
@@ -37,6 +39,20 @@ export default class Improv {
      * @param keys
      */
     onKeyInputChange(event) {
+        var newKey = event.predictedKey[0];
+        for (var c = 0; c < event.predictedKey.length; c++) {
+            if (event.predictedKey[c].key === this._lastKey.key) {
+                this._lastKey.score = event.predictedKey[c].score;
+            }
+        }
+        if (this._lastKey.key !== newKey.key) {
+            var delta = Math.abs(this._lastKey.score - event.predictedKey[0].score);
+            if (delta < 1) {
+                newKey = this._lastKey;
+            }
+        }
+        this._lastKey = newKey;
+
         clearTimeout(this._inactivityTimer);
         this._inactivityTimer = setTimeout( () => this.onInactivityTimeout(), 5000);
 
@@ -46,12 +62,16 @@ export default class Improv {
             velocity: event.changed.velocity });
 
         if (event.predictedKey.length > 0 && this.currentKeySignature !== event.predictedKey[0].key) {
+            var minor = (event.predictedKey[0].key.indexOf('m') > -1);
+            this._notationtextdisplay.setText(event.predictedKey[0].key);
             this._keyboard.changeKeySignature(event.predictedKey[0].key);
             this._hudKeyboard.changeKeySignature(event.predictedKey[0].key);
             this.currentKeySignature = event.predictedKey[0].key;
             this._metronome.setHitColor(Style.colorwheelHighSaturation[Note.indexOfNotation(event.predictedKey[0].key)]);
             this._particles.setColor(Style.colorwheelHighSaturation[Note.indexOfNotation(event.predictedKey[0].key)]);
-            //this._swarm.setColor(Style.colorwheel[Note.indexOfNotation(event.predictedKey[0].key)]);
+         //   this._dome.setEmissive(minor ? 0x1a1a1a : Style.dome.emissive);
+            this._lights.setIntensity(minor ? 2 : 4);
+            //this._swarm.setColor(Style.colorwheelHighSaturation[Note.indexOfNotation(newKey.key)]);
         }
 
         //this._keyboard.toggleKeyPressed(key[octave], event.changed.velocity);
@@ -79,6 +99,7 @@ export default class Improv {
         this._input.clearPredictionHistory();
         this._metronome.setHitColor();
         this._particles.setColor();
+        this._notationtextdisplay.setText();
      }
 
     /**
@@ -105,18 +126,22 @@ export default class Improv {
         this._input = new Input(config.input, (keys) => this.onKeyInputChange(keys) );
         this._keyboard = new TraditionalKeyboard(config.keyboard);
         this._hudKeyboard = new CircularKeyboard(config.notationdisplay);
-        this._metronome = new Metronome();
+        this._metronome = new Metronome(config.metronome);
+        this._notationtextdisplay = new NotationTextDisplay();
+        this._dome = new Dome();
+        this._lights = new Lighting();
         //this._swarm = new ParticleSwarm();
         this._particles = new ParticlesFloating();
 
         this._scene.addObjects([
             this._metronome,
-            this._particles,
             //this._swarm,
-            new Dome(),
+            this._dome,
+            this._notationtextdisplay,
             this._keyboard,
             this._hudKeyboard,
-            new Lighting() ]);
+            this._lights,
+            this._particles]);
 
         for (var c = 0; c < config.sound.soundfonts.length; c++) {
             TonePlayback.loadInstrument(config.sound.soundfonts[c], config.sound.soundfontlocation);

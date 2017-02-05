@@ -50,7 +50,6 @@ export default {
         drum: {
             bumpmap: './assets/images/ripplemap.jpg',
             color: Colors.neutral.darkred,
-            hitcolor: Colors.grayscale[0],
             emissive: Colors.grayscale[0],
             specular: Colors.neutral.grayblue
         },
@@ -71,11 +70,12 @@ export default {
     dome: {
         color: Colors.neutral.darkred,
         emissive: Colors.neutral.darkred,
+        emissiveminor: Colors.grayscale[1],
         specular: Colors.neutral.red
     },
 
     floatingparticles: {
-        sprite: './assets/images/snowflake1.png',
+        sprite: './assets/images/particle.png',
         color: Colors.grayscale[2]
     },
 

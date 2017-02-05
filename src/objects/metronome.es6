@@ -47,10 +47,9 @@ export default class Metronome extends BaseGroup {
     }
 
     onCreate(scenecollection, mycollection) {
-        //this.addHammer('right', Math.PI/64, Math.PI * 2, 'C4');
-        //this.addHammer('left', Math.PI/128, Math.PI/4, 'A4');
-        this.addHammer('up', Math.PI/this._config.rate, Math.PI/2, this._config.notation);
-        //this.addHammer('down', Math.PI/32, 0, 'F3');
+        for (var c = 0; c < this._config.hammers.length; c++) {
+            this.addHammer(this._config.hammers[c].direction, Math.PI/this._config.hammers[c].rate, Math.PI/16 * this._config.hammers[c].offset, this._config.hammers[c].notation);
+        }
         this.addDrum();
     }
 
@@ -133,7 +132,7 @@ export default class Metronome extends BaseGroup {
         this._tweenTargets.drum.currentTween = createjs.Tween.get(this._tweenTargets.drum.props)
             .to({
                 r: endcolor.r, g: endcolor.g, b: endcolor.b,
-                bumpscale: 1.5,
+                bumpscale: 0.35,
                 zPosition: -400 + hammer.direction * 50 }, 150)
             .to({
                 r: startcolor.r, g: startcolor.g, b: startcolor.b,
